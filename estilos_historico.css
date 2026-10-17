@@ -1,0 +1,217 @@
+/* ============================================================
+   HISTÓRICO · estilos aislados
+   ============================================================ */
+
+.hist-fb { min-width: 220px; flex: 1 1 220px; }
+.hist-fb-row { display: flex; gap: 6px; align-items: stretch; }
+
+/* Contenedor que agrupa el input y los iconos */
+.hist-input-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--bg, #f6f2ec);
+  border: 1px solid var(--ln, #e3dbd0);
+  border-radius: 8px;
+}
+
+/* El input ahora es transparente y sin borde, porque el borde lo tiene el contenedor */
+.hist-input-wrap input {
+  font: inherit;
+  width: 100%;
+  color: var(--tx, #231a1d);
+  border: 0 !important;
+  background: transparent !important;
+  padding: 8px 10px !important;
+  padding-right: 68px !important; /* Espacio a la derecha para la X y la flecha */
+  outline: none;
+  box-shadow: none !important;
+}
+
+/* Efecto de foco en el contenedor entero */
+.hist-input-wrap:focus-within {
+  outline: 2px solid var(--gu, #9F2241);
+  outline-offset: 1px;
+}
+
+/* --- FLECHITA NATIVA DEL NAVEGADOR --- */
+.hist-input-wrap input::-webkit-calendar-picker-indicator {
+  position: absolute;
+  right: 8px; /* Pegada al borde derecho */
+  transform: scale(0.85); /* Un poco más pequeña */
+  opacity: 0.5;
+  cursor: pointer;
+  padding: 0;
+  margin: 0;
+  z-index: 10;
+}
+.hist-input-wrap input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* --- BOTÓN DEL TACHECITO (X) --- */
+.hist-clear-btn {
+  position: absolute;
+  right: 34px; /* Separado de la flecha del navegador */
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: 0;
+  color: var(--mu, #6d6266); /* Color gris suave */
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  display: none; /* Oculto por defecto */
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  line-height: 1;
+  padding: 0;
+  z-index: 10;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hist-clear-btn:hover {
+  background: rgba(109, 98, 102, 0.15);
+  color: var(--tx, #231a1d);
+}
+
+/* Clase para mostrarlo desde JavaScript */
+.hist-clear-btn.visible {
+  display: flex;
+}
+
+/* Estilos del botón "Ver" */
+.hist-fb-row .bt {
+  background: var(--gu, #9F2241); color: #fff; border: 0;
+  padding: 8px 14px; border-radius: 8px; font-weight: 700;
+  font-size: 13px; cursor: pointer; white-space: nowrap;
+}
+.hist-fb-row .bt:hover { filter: brightness(1.08); }
+
+/* --- MODAL --- */
+.hist-modal {
+  position: fixed; inset: 0; z-index: 1000000;
+  display: none; padding: 16px;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+.hist-modal.open { display: block; }
+.hist-modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(20, 12, 15, .55);
+  backdrop-filter: blur(2px);
+}
+.hist-modal-card {
+  position: relative; z-index: 1;
+  max-width: 560px; margin: 32px auto;
+  background: var(--cd, #fff); color: var(--tx, #231a1d);
+  border-radius: 16px; padding: 22px 22px 26px;
+  box-shadow: 0 20px 60px rgba(0,0,0,.35);
+  border-top: 6px solid var(--gu, #9F2241);
+  font-family: Gotham, Montserrat, system-ui, -apple-system, "Segoe UI", sans-serif;
+  animation: hist-in .18s ease-out;
+}
+@keyframes hist-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hist-modal-close {
+  position: absolute; top: 8px; right: 10px;
+  border: 0; background: transparent; cursor: pointer;
+  font-size: 26px; line-height: 1;
+  width: 36px; height: 36px; border-radius: 8px;
+  color: var(--mu, #6d6266);
+}
+.hist-modal-close:hover { background: var(--bg, #f6f2ec); }
+
+.hist-modal-head { padding-right: 40px; }
+.hist-badge {
+  display: inline-block; font-size: 11px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: #fff; background: var(--gv, #56212f);
+  padding: 4px 10px; border-radius: 99px; margin-bottom: 8px;
+}
+.hist-modal-head h2 {
+  margin: 0 0 4px; font-size: 22px; font-weight: 800;
+  color: var(--gu, #9F2241); line-height: 1.2;
+}
+.hist-sub {
+  margin: 0 0 4px; font-size: 13px;
+  color: var(--mu, #6d6266);
+}
+
+.hist-kpis {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin: 16px 0 8px;
+}
+.hist-kpi {
+  border: 1px solid var(--ln, #e3dbd0); border-radius: 12px;
+  padding: 12px 12px 10px;
+  display: flex; flex-direction: column; gap: 2px;
+  background: var(--bg, #f6f2ec);
+  border-left: 4px solid var(--gu, #9F2241);
+}
+.hist-kpi-tramites { border-left-color: var(--or, #bc955b); }
+.hist-kpi-personas { border-left-color: var(--c3, #4a5d6a); }
+.hist-kpi-lbl {
+  font-size: 11px; font-weight: 700; letter-spacing: .03em;
+  text-transform: uppercase; color: var(--mu, #6d6266);
+}
+.hist-kpi strong {
+  font-size: 22px; font-weight: 800; color: var(--tx, #231a1d);
+  line-height: 1.1; font-variant-numeric: tabular-nums;
+}
+.hist-kpi small { font-size: 11px; color: var(--mu, #6d6266); }
+
+.hist-years { margin-top: 14px; }
+.hist-years h3 {
+  margin: 0 0 8px; font-size: 12px; font-weight: 800;
+  text-transform: uppercase; letter-spacing: .05em;
+  color: var(--gv, #56212f);
+}
+.hist-year-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.hist-year {
+  border: 1px solid var(--ln, #e3dbd0); border-radius: 10px;
+  padding: 10px 12px; text-align: center;
+  background: linear-gradient(180deg, var(--cd, #fff), var(--bg, #f6f2ec));
+}
+.hist-year span {
+  display: block; font-size: 11px; font-weight: 700;
+  color: var(--mu, #6d6266); text-transform: uppercase;
+  letter-spacing: .05em; margin-bottom: 2px;
+}
+.hist-year strong {
+  font-size: 26px; font-weight: 800; color: var(--gu, #9F2241);
+  font-variant-numeric: tabular-nums;
+}
+
+.hist-note {
+  margin: 14px 0 0; padding: 10px 12px;
+  font-size: 12.5px; line-height: 1.4;
+  background: #fbf3e6; border-left: 3px solid var(--or, #bc955b);
+  border-radius: 6px; color: #5a4520;
+}
+
+@media (prefers-color-scheme: dark) {
+  .hist-note { background: #3a2c31; color: #ddc8a4; }
+  .hist-kpi { background: var(--bg, #1a1316); }
+  .hist-year { background: linear-gradient(180deg, var(--cd, #251b1f), var(--bg, #1a1316)); }
+}
+
+@media (max-width: 560px) {
+  .hist-modal-card { margin: 12px auto; padding: 18px 16px 22px; border-radius: 12px; }
+  .hist-kpis { grid-template-columns: 1fr; }
+  .hist-kpi { flex-direction: row; align-items: center; justify-content: space-between; padding: 10px 12px; }
+  .hist-kpi strong { font-size: 20px; }
+  .hist-year strong { font-size: 22px; }
+}
+
+@media print {
+  .hist-modal, .hist-fb { display: none !important; }
+}
