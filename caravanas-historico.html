@@ -307,35 +307,41 @@ draw();setInterval(()=>{const d=hoy;tick();if(d!==hoy)draw()},60000);document.ad
       <div class="hb-card">
         <button id="helpclose" aria-label="Cerrar">×</button>
         <h2>Cómo usar este calendario</h2>
-        <p class="hb-sub">Solo explora y toca. No hay nada que instalar ni registrarse.</p>
+        <p class="hb-sub">Explora la programación y consulta los datos históricos.</p>
+        
         <h3>🗺️ El mapa</h3>
         <ul>
-          <li><b>Toca cualquier municipio</b> para ver sus fechas.</li>
+          <li><b>Toca cualquier municipio</b> para ver sus fechas y abrir su histórico.</li>
           <li>Los municipios <b>de color</b> tienen caravana en octubre.</li>
           <li>Los <b>grises</b> no tienen caravana este mes.</li>
           <li>El borde <b>punteado</b> indica una caravana <b>en curso hoy</b>.</li>
           <li>Una <b>estrella ★</b> avisa que la fecha cambió respecto al calendario anterior.</li>
         </ul>
+
+        <h3>📈 Histórico 2024-2026</h3>
+        <ul>
+          <li>Usa el <b>buscador</b> (arriba a la derecha) para escribir el nombre de un municipio y presiona <b>Enter</b> o el botón <b>Ver</b>.</li>
+          <li>Si te equivocas al escribir, puedes usar el <b>tachecito rojo (×)</b> dentro del buscador para borrar el texto rápidamente.</li>
+          <li>Si escribes <b>— TOTAL ESTATAL —</b>, verás la suma de todos los municipios.</li>
+          <li><b>El panel de datos:</b> Al abrir el histórico verás un número gigante con las <b>veces que fuimos</b> a ese municipio, además de los trámites, personas atendidas y el desglose de visitas por cada año.</li>
+        </ul>
+
         <h3>🎨 Colores de las caravanas</h3>
         <p class="hb-legend">
           <span><i style="background:#9F2241"></i> Caravana 1</span>
           <span><i style="background:#bc955b"></i> Caravana 2</span>
           <span><i style="background:#4a5d6a"></i> Caravana 3</span>
         </p>
-        <h3>🔍 Los filtros</h3>
+
+        <h3>🔍 Filtros del calendario</h3>
         <ul>
           <li><b>Caravana:</b> muestra solo la 1, la 2 o la 3.</li>
-          <li><b>Municipio:</b> elige uno de la lista.</li>
+          <li><b>Municipio:</b> elige uno de la lista para filtrar el calendario de octubre.</li>
           <li><b>Fecha:</b> selecciona un día de octubre.</li>
-        </ul>
-        <h3>🔘 Los botones</h3>
-        <ul>
           <li><b>Hoy:</b> muestra solo lo que ocurre el día de hoy.</li>
-          <li><b>Limpiar:</b> quita todos los filtros.</li>
+          <li><b>Limpiar:</b> quita todos los filtros del calendario.</li>
           <li><b>Descargar PDF:</b> guarda el calendario como PDF (elige “Guardar como PDF” en la ventana que se abre).</li>
         </ul>
-        <h3>💡 En curso hoy</h3>
-        <p>La sección de arriba te dice automáticamente qué caravanas están activas hoy y cuántos días faltan para que terminen.</p>
       </div>
     `;
     pDoc.body.appendChild(box);
