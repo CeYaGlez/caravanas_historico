@@ -138,3 +138,123 @@ const HISTORICO_TOTAL = {
   v24: 81, v25: 165, v26: 131,
   tot: 377, tra: 1227980, per: 444212
 };
+
+/* ============================================================
+   DESGLOSE DE VISITAS (Datos del CSV TABLA SEDE)
+   ============================================================ */
+const HISTORICO_VISITAS = {
+  "Acolman": [
+    { año: 2024, fecha: "feb", sede: "explanada municipal", dentro: true, tramites: 1765, personas: 948 },
+    { año: 2025, fecha: "24 AL 28 DE JUN", sede: "explanada municipal", dentro: true, tramites: 4863, personas: 1665 },
+    { año: 2026, fecha: "24 al 28 de marzo", sede: "casa de cultura", dentro: false, tramites: 4105, personas: 2388 }
+  ],
+  "Apaxco": [
+    { año: 2024, fecha: "28 y 29 de sept", sede: "explanada municipal", dentro: true, tramites: 988, personas: 367 },
+    { año: 2025, fecha: "02 Y 03 DE SEP", sede: "campo la noria", dentro: false, tramites: 3808, personas: 869 },
+    { año: 2025, fecha: "02 Y 03 DE DIC", sede: "explanada municipal", dentro: true, tramites: 0, personas: 483 }
+  ],
+  "Chalco": [
+    { año: 2024, fecha: "7 al 9 de agosto", sede: "colonia culturas", dentro: false, tramites: 4613, personas: 2341 },
+    { año: 2025, fecha: "24 AL 28 DE JUN", sede: "jardín central", dentro: true, tramites: 10247, personas: 4742 }
+  ],
+  "Chimalhuacán": [
+    { año: 2024, fecha: "17 al 21 de julio", sede: "Recinto Ferial", dentro: false, tramites: 11283, personas: 4227 },
+    { año: 2025, fecha: "17 AL 21 DE JUN", sede: "explanada municipal", dentro: true, tramites: 10203, personas: 3647 },
+    { año: 2026, fecha: "12 al 16 de mayo", sede: "Deportivo Tepalcate", dentro: false, tramites: 5241, personas: 3708 }
+  ],
+  "Cuautitlán": [
+    { año: 2024, fecha: "6 al 10 de nov", sede: "Centro Social y Cultural", dentro: false, tramites: 6884, personas: 1648 },
+    { año: 2025, fecha: "27 AL 31 DE ENERO", sede: "Centro Social y Cultural", dentro: false, tramites: 27799, personas: 6327 }
+  ],
+  "Ecatepec de Morelos": [
+    { año: 2024, fecha: "21 al 25 de agosto", sede: "Deportivo Emiliano Zapata", dentro: false, tramites: 9441, personas: 2211 },
+    { año: 2025, fecha: "12 AL 16 DE MARZ", sede: "explanada municipal", dentro: true, tramites: 22949, personas: 4223 },
+    { año: 2025, fecha: "14 AL 18 OCT", sede: "Central de Abasto", dentro: false, tramites: 0, personas: 3994 }
+  ],
+  "El Oro": [
+    { año: 2024, fecha: "19 y 20 de octubre", sede: "Teatro Juárez", dentro: false, tramites: 1596, personas: 484 },
+    { año: 2026, fecha: "3 al 5 de marzo", sede: "Teatro Juárez", dentro: false, tramites: 1708, personas: 912 }
+  ],
+  "Huehuetoca": [
+    { año: 2024, fecha: "2 al 6 de octubre", sede: "explanada municipal", dentro: true, tramites: 5251, personas: 2757 },
+    { año: 2025, fecha: "19 AL 23 DE AGO", sede: "concha acustica", dentro: false, tramites: 14167, personas: 4511 },
+    { año: 2026, fecha: "3 al 7 de marzo", sede: "explanada municipal", dentro: true, tramites: 5548, personas: 2392 }
+  ],
+  "Huixquilucan": [
+    { año: 2025, fecha: "7 AL 11 DE OCT", sede: "explanada municipal", dentro: true, tramites: 4395, personas: 1478 },
+    { año: 2026, fecha: "15 al 18 de bril", sede: "tianguis de San Matín", dentro: false, tramites: 1645, personas: 820 }
+  ],
+  "Jilotzingo": [
+    { año: 2025, fecha: "26 AL 27 DE MARZ", sede: "explanada municipal", dentro: true, tramites: 1351, personas: 232 },
+    { año: 2025, fecha: "13 AL 15 DE NOV", sede: "Escuela Primaria Benito Juárez", dentro: false, tramites: 0, personas: 271 }
+  ],
+  "Jiquipilco": [
+    { año: 2024, fecha: "3 al 5 de dic", sede: "Unidad Deportiva", dentro: false, tramites: 2242, personas: 695 },
+    { año: 2025, fecha: "30 AL 2 DE AGO", sede: "Loma del Artillero", dentro: false, tramites: 5582, personas: 1550 },
+    { año: 2026, fecha: "explanada municipal", sede: "explanada municipal", dentro: true, tramites: 2072, personas: 759 }
+  ],
+  "Morelos": [
+    { año: 2024, fecha: "12 y 13 de oct", sede: "auditorio municipal", dentro: false, tramites: 1035, personas: 259 },
+    { año: 2025, fecha: "15 AL 16 DE AGO", sede: "andador Boshegui", dentro: false, tramites: 1846, personas: 393 }
+  ],
+  "Otzolotepec": [
+    { año: 2024, fecha: "27 al 29 de nov", sede: "Calle Independencia", dentro: false, tramites: 3913, personas: 1044 },
+    { año: 2025, fecha: "23 Y 24 DE MAYO", sede: "Calle Independencia", dentro: false, tramites: 2361, personas: 648 },
+    { año: 2025, fecha: "07 Y 08 DE OCT", sede: "Calle Independencia", dentro: false, tramites: 0, personas: 128 }
+  ],
+  "Otumba": [
+    { año: 2024, fecha: "10 y 11 de agosto", sede: "explanada municipal", dentro: true, tramites: 1629, personas: 699 },
+    { año: 2025, fecha: "1 AL 2 DE AGO", sede: "explanada municipal", dentro: true, tramites: 1493, personas: 730 },
+    { año: 2026, fecha: "24 y 25 de abril", sede: "Av. Eugenio Montaño", dentro: false, tramites: 963, personas: 397 }
+  ],
+  "Rayón": [
+    { año: 2025, fecha: "21 AL 23 AL MARZ", sede: "Centro Cultural Rayón", dentro: false, tramites: 3130, personas: 537 },
+    { año: 2025, fecha: "6 Y 8 NOV", sede: "Plaza Rayón", dentro: false, tramites: 0, personas: 409 }
+  ],
+  "San Simón de Guerrero": [
+    { año: 2025, fecha: "6 AL 8 DE MAYO", sede: "Calle Riva Palacio", dentro: false, tramites: 2222, personas: 325 },
+    { año: 2025, fecha: "16 AL 18 DE OCT", sede: "Calle Riva Palacio", dentro: false, tramites: 0, personas: 157 },
+    { año: 2026, fecha: "12 y 13 de mayo", sede: "Calle Riva Palacio", dentro: false, tramites: 552, personas: 164 }
+  ],
+  "Temoaya": [
+    { año: 2024, fecha: "20 y 21 de julio", sede: "Avenida Rinconada", dentro: false, tramites: 1869, personas: 622 },
+    { año: 2025, fecha: "8 AL 12 DE JUL", sede: "Plaza Civíca", dentro: true, tramites: 8774, personas: 1084 },
+    { año: 2025, fecha: "02 AL 06 DE DIC", sede: "Plaza Civíca", dentro: true, tramites: 0, personas: 415 },
+    { año: 2026, fecha: "19 al 23 de mayo", sede: "Plaza Civíca", dentro: true, tramites: 2441, personas: 1188 }
+  ],
+  "Tenango del Valle": [
+    { año: 2024, fecha: "3 al 5 de julio", sede: "explanada municipal", dentro: true, tramites: 2571, personas: 1143 },
+    { año: 2025, fecha: "3 AL 7 DE JUN", sede: "explanada municipal", dentro: true, tramites: 5276, personas: 1723 },
+    { año: 2026, fecha: "3 al 7 de marzo", sede: "Santa Maria Jajalpa", dentro: false, tramites: 3188, personas: 1639 }
+  ],
+  "Tepetlaoxtoc": [
+    { año: 2025, fecha: "6 AL 7 DE FEB", sede: "Calle Hidalgo", dentro: false, tramites: 4102, personas: 824 },
+    { año: 2025, fecha: "8 Y 9 DE AGO", sede: "Calle Hidalgo", dentro: false, tramites: 0, personas: 850 },
+    { año: 2026, fecha: "6 y 7 de mayo", sede: "Calle Hidalgo", dentro: false, tramites: 1311, personas: 702 }
+  ],
+  "Tezoyuca": [
+    { año: 2024, fecha: "30 de nov al 1 de dic", sede: "explanada municipal", dentro: true, tramites: 2188, personas: 618 },
+    { año: 2025, fecha: "17 AL 18 DE JUL", sede: "explanada municipal", dentro: true, tramites: 2392, personas: 673 },
+    { año: 2026, fecha: "8 y 9 de mayo", sede: "Auditorio Municipal", dentro: false, tramites: 1214, personas: 682 }
+  ],
+  "Tlatlaya": [
+    { año: 2024, fecha: "7 al 9 de agosto", sede: "San Pedro Limón", dentro: false, tramites: 1146, personas: 388 },
+    { año: 2025, fecha: "1 AL 2 DE JUL", sede: "San Pedro Limón", dentro: false, tramites: 756, personas: 346 },
+    { año: 2026, fecha: "21 al 23 de abril", sede: "San Pedro Limón", dentro: false, tramites: 983, personas: 249 }
+  ],
+  "Valle de Chalco Solidaridad": [
+    { año: 2024, fecha: "21 al 23 de junio", sede: "explanada municipal", dentro: true, tramites: 3074, personas: 1097 },
+    { año: 2025, fecha: "14 AL 18 DE AGO", sede: "Central de Abasto", dentro: false, tramites: 10292, personas: 1708 },
+    { año: 2025, fecha: "Explanada Municipal", sede: "explanada municipal", dentro: true, tramites: 0, personas: 2200 }
+  ],
+  "Zacazonapan": [
+    { año: 2025, fecha: "2 AL 3 DE MAYO", sede: "Calle San Juan", dentro: false, tramites: 1253, personas: 117 },
+    { año: 2025, fecha: "09 AL 11 DE OCT", sede: "Calle San Juan", dentro: false, tramites: 0, personas: 129 },
+    { año: 2026, fecha: "28 y 29 de abril", sede: "explanada municipal", dentro: true, tramites: 349, personas: 143 }
+  ],
+  "Zumpango": [
+    { año: 2024, fecha: "18 al 22 de sep", sede: "explanada municipal", dentro: true, tramites: 4164, personas: 1706 },
+    { año: 2025, fecha: "17 AL 20 DE SEP", sede: "Arco Techo de San Miguel", dentro: false, tramites: 2611, personas: 1196 },
+    { año: 2026, fecha: "17 al 21 de marzo", sede: "explanada municipal", dentro: true, tramites: 3764, personas: 2504 }
+  ]
+};
