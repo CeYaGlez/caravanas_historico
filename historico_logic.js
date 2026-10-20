@@ -8,6 +8,61 @@
   const hist_norm   = (s) => (s || "")
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLowerCase().trim();
+  const hist_formatFecha = (str) => {
+    if (!str) return "—";
+    let s = str.toLowerCase().trim().replace(/[()]/g, "");
+    
+    const m = {
+      "enero": "Ene", "ene": "Ene", "febrero": "Feb", "feb": "Feb", "marzo": "Mar", "mar": "Mar",
+      "abril": "Abr", "abr": "Abr", "mayo": "May", "may": "May", "junio": "Jun", "jun": "Jun",
+      "julio": "Jul", "jul": "Jul", "agosto": "Ago", "ago": "Ago", "septiembre": "Sep", "sep": "Sep", "setiembre": "Sep", "sept": "Sep",
+      "octubre": "Oct", "oct": "Oct", "noviembre": "Nov", "nov": "Nov", "diciembre": "Dic", "dic": "Dic"
+    };
+
+    for (const [key, val] of Object.entries(m)) {
+      s = s.replace(new RegExp(`\\b${key}\\b`, 'g'), val);
+    }
+
+    s = s.replace(/\bde\b/g, "")
+         .replace(/\bal\b/g, "-")
+         .replace(/\by\b/g, "-")
+         .replace(/\/+/g, "")
+         .replace(/\s+/g, " ")
+         .trim();
+
+    if (s.includes("-")) {
+      let parts = s.split("-").map(p => p.trim()).filter(p => p);
+      if (parts.length === 2) {
+        const hasMonth1 = Object.values(m).some(mon => parts[0].includes(mon));
+        const hasMonth2 = Object.values(m).some(mon => parts[1].includes(mon));
+        if (hasMonth1 && !hasMonth2) {
+          const month1 = Object.values(m).find(mon => parts[0].includes(mon));
+          parts[1] = parts[1] + " " + month1;
+        } else if (!hasMonth1 && hasMonth2) {
+          const month2 = Object.values(m).find(mon => parts[1].includes(mon));
+          parts[0] = parts[0] + " " + month2;
+        }
+      }
+      s = parts.join(" - ");
+    }
+
+    s = s.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+    
+    if (s === "Feb") s = "Febrero";
+    if (s === "Ene") s = "Enero";
+    if (s === "Mar") s = "Marzo";
+    if (s === "Abr") s = "Abril";
+    if (s === "May") s = "Mayo";
+    if (s === "Jun") s = "Junio";
+    if (s === "Jul") s = "Julio";
+    if (s === "Ago") s = "Agosto";
+    if (s === "Sep") s = "Septiembre";
+    if (s === "Oct") s = "Octubre";
+    if (s === "Nov") s = "Noviembre";
+    if (s === "Dic") s = "Diciembre";
+    
+    return s;
+  };
 
   // en historico_logic.js
   const HIST_K2N = {
@@ -199,7 +254,7 @@
         // CONTENIDO: DESGLOSE POR VISITA
         '<div id="tab-visitas" class="hist-tab-content">' +
           '<p style="font-size:12px; color:var(--mu); margin-bottom: 10px;">Haz clic en el botón de abajo para guardar esta información como PDF.</p>' +
-          '<div style="max-height: 300px; overflow-y: auto; overflow-x: auto;">' +
+          '<div class="hist-table-container" style="max-height: 300px; overflow-y: auto; overflow-x: auto;">' +
             '<table class="hist-visit-table">' +
               '<thead><tr><th>Año</th><th>Fecha</th><th>Sede</th><th>Tipo</th><th>Trámites</th><th>Personas</th></tr></thead>' +
               '<tbody id="hist-visits-body"></tbody>' +
@@ -232,7 +287,7 @@
         // Mostramos ambas pestañas para que salgan en el PDF
         clone.querySelectorAll(".hist-tab-content").forEach(el => {
           el.style.display = "block";
-          el.style.marginBottom = "30px";
+          // el.style.marginBottom = "30px";
         });
 
         let styles = "";
@@ -245,17 +300,46 @@
               <title>Histórico - ${document.getElementById("hist-modal-title").textContent}</title>
               ${styles}
               <style>
-                body { background: white !important; padding: 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-                .hist-modal-card { box-shadow: none !important; border: none !important; margin: 0 !important; max-width: 100% !important; }
-                .hist-tab-content { display: block !important; page-break-after: always; }
-                .hist-tab-content:last-child { page-break-after: auto; }
-                /* Forzar gráficas en impresión */
-                .hist-chart-row { height: 150px; display: flex; align-items: flex-end; gap: 20px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ccc; page-break-inside: avoid; }
-                .hist-chart-year { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
-                .hist-chart-bars { display: flex; gap: 4px; align-items: flex-end; height: 100%; width: 100%; justify-content: center; }
-                .hist-bar { width: 25px; border-radius: 4px 4px 0 0; min-height: 2px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+                @page { size: portrait; margin: 10mm; }
+                body { background: white !important; padding: 0; margin: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; font-family: Gotham, Montserrat, system-ui, sans-serif; font-size: 12px; }
+                .hist-modal-card { box-shadow: none !important; border: none !important; margin: 0 !important; max-width: 100% !important; padding: 0 !important; }
+                .hist-tab-content { display: block !important; page-break-after: auto !important; page-break-inside: avoid !important; margin-bottom: 10px !important; }
+                
+                /* Reducir tamaño de encabezados y KPIs */
+                .hist-modal-head { margin-bottom: 10px !important; }
+                .hist-modal-head h2 { font-size: 18px !important; margin: 0 !important; }
+                .hist-sub { font-size: 11px !important; margin: 0 !important; }
+                .hist-badge { font-size: 10px !important; padding: 2px 8px !important; margin-bottom: 4px !important; }
+                
+                .hist-kpis { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; margin: 0 0 10px 0 !important; }
+                .hist-kpi { padding: 8px 10px !important; border-radius: 8px !important; }
+                .hist-kpi-lbl { font-size: 9px !important; }
+                .hist-kpi strong { font-size: 16px !important; }
+                .hist-kpi strong#hist-kpi-total { font-size: 22px !important; }
+                .hist-kpi small { font-size: 9px !important; }
+                
+                .hist-years { margin-top: 10px !important; }
+                .hist-years h3 { font-size: 11px !important; margin-bottom: 4px !important; }
+                .hist-year-grid { gap: 6px !important; }
+                .hist-year { padding: 6px !important; border-radius: 6px !important; }
+                .hist-year span { font-size: 10px !important; }
+                .hist-year strong { font-size: 18px !important; }
+                
+                /* Gráficas más pequeñas para que quepan */
+                .hist-chart-row { height: 80px !important; margin-bottom: 5px !important; padding-bottom: 5px !important; gap: 10px !important; page-break-inside: avoid !important; border-bottom: 1px solid #ccc !important; display: flex !important; align-items: flex-end !important; }
+                .hist-chart-year { flex: 1 !important; display: flex !important; flex-direction: column !important; align-items: center !important; justify-content: flex-end !important; height: 100% !important; }
+                .hist-chart-bars { display: flex !important; gap: 4px !important; align-items: flex-end !important; height: 100% !important; width: 100% !important; justify-content: center !important; }
+                .hist-bar { width: 15px !important; border-radius: 4px 4px 0 0 !important; min-height: 2px !important; print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important; }
                 .hist-bar.dentro { background: #8A1538 !important; }
                 .hist-bar.fuera { background: #B8860B !important; }
+                .hist-chart-label { font-size: 10px !important; margin-top: 4px !important; }
+                .hist-chart-legend { font-size: 10px !important; margin-top: 4px !important; }
+                
+                /* Quitar el scroll de la tabla para que se imprima completa */
+                .hist-table-container { max-height: none !important; overflow: visible !important; }
+                .hist-visit-table { font-size: 11px !important; margin-top: 5px !important; }
+                .hist-visit-table th, .hist-visit-table td { padding: 4px 6px !important; }
+                .hist-badge-d, .hist-badge-f { padding: 1px 4px !important; font-size: 9px !important; }
               </style>
             </head>
             <body>${clone.outerHTML}</body>
@@ -443,7 +527,7 @@
       tbody.innerHTML = visitasReales.map(v => `
         <tr>
           <td>${v.año}</td>
-          <td>${v.fecha}</td>
+          <td>${hist_formatFecha(v.fecha)}</td>   <!-- <--- AQUÍ -->
           <td>${v.sede}</td>
           <td>${v.dentro ? '<span class="hist-badge-d">Dentro</span>' : '<span class="hist-badge-f">Fuera</span>'}</td>
           <td>${v.tramites !== undefined ? hist_fmtNum(v.tramites) : '-'}</td>
