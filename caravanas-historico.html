@@ -360,41 +360,110 @@ $('bp').onclick = () => {
   if (!mainContent) return;
 
   const clone = mainContent.cloneNode(true);
-  // Quitamos los filtros, botones y notas del clon
-  clone.querySelectorAll('.fb, .note, .sp').forEach(el => el.remove());
+  
+  // 1. Quitar elementos interactivos o innecesarios para el PDF
+  clone.querySelectorAll('.fb, .note, .sp, #mapzoom, header, .bar, footer, .hi, button, #inf').forEach(el => el.remove());
+  
+  // 2. Forzar que el mapa SVG tenga un tamaño correcto y restaurar su vista
+  const svgClone = clone.querySelector('svg.map');
+  if (svgClone) {
+    svgClone.setAttribute('viewBox', '0 0 700 706'); // Restaura el viewBox original
+    svgClone.style.maxHeight = 'none';
+    svgClone.style.height = '380px'; // Altura fija para que no colapse en el PDF
+    svgClone.style.width = '100%';
+    svgClone.style.display = 'block';
+  }
 
+  // 3. Recolectar estilos actuales
   let styles = "";
   document.querySelectorAll("style, link[rel='stylesheet']").forEach(el => styles += el.outerHTML);
 
+  // 4. Generar el HTML con estilos forzados para que quepa en 1 sola página
   const html = `
     <html>
       <head>
         <title>Calendario Caravanas</title>
         ${styles}
         <style>
-          body { background: white !important; padding: 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .g2 { grid-template-columns: 1fr !important; } /* Apila el mapa y la lista en el PDF */
-          .map { max-height: 80vh !important; }
+          @page { size: portrait; margin: 10mm; }
+          body { 
+            background: white !important; 
+            padding: 0; 
+            margin: 0; 
+            -webkit-print-color-adjust: exact; 
+            print-color-adjust: exact; 
+            font-family: Gotham, Montserrat, system-ui, sans-serif; 
+            font-size: 11px; 
+          }
+          
+          /* Contenedor principal */
+          .w { max-width: 100% !important; padding: 0 !important; }
+          h1 { font-size: 18px !important; margin: 0 0 2px 0 !important; }
+          .sub { font-size: 11px !important; margin-bottom: 10px !important; color: #6d6266 !important; }
+          
+          /* Apilar mapa y lista verticalmente */
+          .g2 { display: flex !important; flex-direction: column !important; gap: 15px !important; }
+          
+          /* Tarjetas contenedoras */
+          .c { border: 1px solid #e3dbd0 !important; padding: 10px !important; border-radius: 8px !important; break-inside: avoid !important; }
+          .c h2 { font-size: 13px !important; margin: 0 0 5px 0 !important; color: #56212f !important; }
+          
+          /* Mapa */
+          svg.map { width: 100% !important; height: 380px !important; margin: 0 auto !important; }
+          svg.map path { stroke: #fff !important; stroke-width: 0.8px !important; print-color-adjust: exact !important; }
+          svg.map text { font-size: 7px !important; }
+          
+          /* Barra de "En curso hoy" */
+          #nowbox { margin-bottom: 10px !important; padding: 8px !important; border-left: 4px solid #9F2241 !important; background: #fbf9f6 !important; }
+          #nowbox h2 { font-size: 12px !important; margin: 0 0 5px 0 !important; color: #231a1d !important; }
+          .nw { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 5px !important; }
+          .nc { border: 1px solid #e3dbd0 !important; padding: 5px !important; border-radius: 6px !important; border-left: 3px solid #9F2241 !important; }
+          .nc b { font-size: 10px !important; display: block !important; }
+          .nc span { font-size: 9px !important; display: block !important; }
+          .nc em { font-size: 9px !important; color: #9F2241 !important; font-style: normal !important; font-weight: bold !important; }
+          
+          /* Lista de municipios */
+          #ls { display: block !important; }
+          .gh { font-size: 11px !important; margin: 8px 0 4px 0 !important; border-bottom: 1px solid #e3dbd0 !important; padding-bottom: 2px !important; }
+          .row { display: flex !important; justify-content: space-between !important; border-bottom: 1px solid #f6f2ec !important; padding: 4px 0 !important; align-items: center !important; }
+          .row b { font-size: 10px !important; width: 50% !important; }
+          .row span { font-size: 9px !important; color: #6d6266 !important; }
+          .tag { font-size: 8px !important; padding: 1px 4px !important; border-radius: 4px !important; print-color-adjust: exact !important; }
+          .t-en { background: #9F2241 !important; color: #fff !important; }
+          .t-pr { background: #ddc8a4 !important; color: #56212f !important; }
+          
+          /* Leyenda del mapa */
+          .lg { display: flex !important; flex-wrap: wrap !important; gap: 8px !important; font-size: 8px !important; margin-top: 5px !important; }
+          .lg span { display: flex !important; align-items: center !important; gap: 3px !important; }
+          .lg b { width: 8px !important; height: 8px !important; display: inline-block !important; border-radius: 2px !important; }
         </style>
       </head>
       <body>${clone.outerHTML}</body>
     </html>
   `;
 
+  // 5. Generar iframe invisible para imprimir
   const iframe = document.createElement('iframe');
   iframe.style.position = 'fixed';
   iframe.style.width = '0';
   iframe.style.height = '0';
   iframe.style.border = 'none';
   document.body.appendChild(iframe);
+  
   const doc = iframe.contentWindow.document;
   doc.open();
   doc.write(html);
   doc.close();
   iframe.contentWindow.focus();
+  
+  // 6. Esperar a que carguen los estilos y mandar a imprimir
   setTimeout(() => {
     iframe.contentWindow.print();
-    setTimeout(() => document.body.removeChild(iframe), 1000);
+    
+    // Limpiar el iframe cuando el usuario cierre la ventana de impresión
+    const cleanup = () => { try { iframe.remove(); } catch(e){} };
+    iframe.contentWindow.onafterprint = cleanup;
+    setTimeout(cleanup, 60000); // Respaldo por si onafterprint falla
   }, 500);
 };
 //
