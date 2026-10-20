@@ -258,3 +258,57 @@
 }
 .hist-print-btn:hover { background: #6b1029; }
 
+/* ===== MEJORAS VISUALES Y PARA CELULAR ===== */
+.hist-bar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+  position: relative;
+  width: 100%;
+}
+
+.hist-bar-value {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--mu, #6d6266);
+  position: absolute;
+  bottom: 100%; /* Justo arriba de la barra */
+  margin-bottom: 4px;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+/* Dar un poco de espacio arriba para que quepan los números */
+.hist-chart-row { 
+  padding-top: 25px !important; 
+}
+
+/* Ajustes específicos para celular */
+@media (max-width: 560px) {
+  .hist-years h3 {
+    white-space: normal !important; /* Arregla el título cortado */
+    text-align: center !important;
+    font-size: 12px !important;
+    line-height: 1.3;
+  }
+  
+  .hist-chart-row {
+    height: 100px !important; /* Gráficas más compactas */
+    gap: 10px !important;
+    padding-top: 20px !important;
+  }
+  
+  .hist-bar {
+    width: 18px !important; /* Barras más delgadas */
+  }
+  
+  .hist-bar-value {
+    font-size: 9px !important;
+  }
+  
+  #hist-kpi-total {
+    font-size: 26px !important; /* El número del KPI se ve proporcionado */
+  }
+}

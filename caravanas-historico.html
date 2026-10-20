@@ -422,7 +422,7 @@ document.addEventListener('visibilitychange', () => {
     style.textContent = `
       #helpbtn{
         position:fixed; bottom:110px; right:18px;
-        z-index:999999;
+        z-index:10;
         width:52px; height:52px; border-radius:50%; border:0;
         background:#9F2241; color:#fff;
         font-size:24px; font-weight:800;
@@ -434,7 +434,7 @@ document.addEventListener('visibilitychange', () => {
       #helpbtn:hover{filter:brightness(1.1)}
       #helpbox{
         display:none; position:fixed; inset:0;
-        z-index:1000000; background:rgba(0,0,0,.5);
+        z-index:11; background:rgba(0,0,0,.5);
         padding:16px; overflow:auto;
         -webkit-overflow-scrolling:touch;
         font-family:Gotham,Montserrat,system-ui,-apple-system,"Segoe UI",sans-serif;

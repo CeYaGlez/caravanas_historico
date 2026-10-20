@@ -216,7 +216,7 @@
         '</header>' +
         '<section class="hist-kpis">' +
           '<div class="hist-kpi hist-kpi-visitas"><span class="hist-kpi-lbl">Total de visitas</span>' +
-          '<strong id="hist-kpi-total" style="font-size:38px; color:var(--gu);">0</strong><small>Veces que fuimos</small></div>' +
+          '<strong id="hist-kpi-total" style="color:var(--gu);">0</strong><small>Veces que fuimos</small></div>' +
           '<div class="hist-kpi hist-kpi-tramites"><span class="hist-kpi-lbl">Trámites</span>' +
             '<strong id="hist-kpi-tramites">0</strong><small>acumulado</small></div>' +
           '<div class="hist-kpi hist-kpi-personas"><span class="hist-kpi-lbl">Personas</span>' +
@@ -513,8 +513,14 @@
         chartHtml += `
           <div class="hist-chart-year">
             <div class="hist-chart-bars">
-              <div class="hist-bar dentro" style="height:${hDentro}%" title="Dentro: ${pDentro}"></div>
-              <div class="hist-bar fuera" style="height:${hFuera}%" title="Fuera: ${pFuera}"></div>
+              <div class="hist-bar-container">
+                <span class="hist-bar-value">${hist_fmtNum(pDentro)}</span>
+                <div class="hist-bar dentro" style="height:${hDentro}%" title="Dentro: ${pDentro}"></div>
+              </div>
+              <div class="hist-bar-container">
+                <span class="hist-bar-value">${hist_fmtNum(pFuera)}</span>
+                <div class="hist-bar fuera" style="height:${hFuera}%" title="Fuera: ${pFuera}"></div>
+              </div>
             </div>
             <div class="hist-chart-label">${anio}</div>
           </div>
