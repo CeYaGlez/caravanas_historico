@@ -369,7 +369,7 @@ $('bp').onclick = () => {
   if (svgClone) {
     svgClone.setAttribute('viewBox', '0 0 700 706');
     svgClone.style.maxHeight = 'none';
-    svgClone.style.height = '300px'; // Mapa más compacto para dar espacio a la lista
+    svgClone.style.height = '280px'; // Mapa más compacto
     svgClone.style.width = '100%';
     svgClone.style.display = 'block';
   }
@@ -378,7 +378,7 @@ $('bp').onclick = () => {
   let styles = "";
   document.querySelectorAll("style, link[rel='stylesheet']").forEach(el => styles += el.outerHTML);
 
-  // 4. Generar el HTML con formato de 2 columnas para la lista
+  // 4. Generar el HTML
   const html = `
     <html>
       <head>
@@ -396,15 +396,12 @@ $('bp').onclick = () => {
             font-size: 10px; 
           }
           
-          /* Contenedor principal */
           .w { max-width: 100% !important; padding: 0 !important; }
           h1 { font-size: 16px !important; margin: 0 0 2px 0 !important; }
           .sub { font-size: 10px !important; margin-bottom: 8px !important; color: #6d6266 !important; }
           
-          /* Apilar mapa y lista */
           .g2 { display: flex !important; flex-direction: column !important; gap: 10px !important; }
           
-          /* Tarjetas contenedoras */
           .c { border: none !important; padding: 0 !important; margin-bottom: 5px; break-inside: avoid !important; }
           .c h2 { font-size: 12px !important; margin: 0 0 5px 0 !important; color: #56212f !important; }
           
@@ -422,26 +419,61 @@ $('bp').onclick = () => {
           .nc span { font-size: 8px !important; display: block !important; }
           .nc em { font-size: 8px !important; color: #9F2241 !important; font-style: normal !important; font-weight: bold !important; }
           
-          /* ¡LA MAGIA! Lista en 2 columnas */
+          /* Lista en 2 columnas */
           #ls { 
             column-count: 2 !important; 
-            column-gap: 20px !important; 
+            column-gap: 25px !important; 
             display: block !important; 
           }
           
           .cg { 
             break-inside: avoid !important; 
             page-break-inside: avoid !important; 
-            margin-bottom: 10px !important; 
+            margin-bottom: 12px !important; 
           }
           
           .gh { font-size: 10px !important; margin: 0 0 4px 0 !important; padding-bottom: 2px !important; border-bottom: 1px solid #e3dbd0 !important; }
-          .row { display: flex !important; justify-content: space-between !important; border-bottom: 1px solid #f6f2ec !important; padding: 3px 0 !important; align-items: center !important; break-inside: avoid !important; }
-          .row b { font-size: 9px !important; width: 55% !important; }
-          .row span { font-size: 8px !important; color: #6d6266 !important; text-align: right; }
-          .tag { font-size: 7px !important; padding: 1px 3px !important; border-radius: 3px !important; print-color-adjust: exact !important; }
-          .t-en { background: #9F2241 !important; color: #fff !important; }
+          
+          /* AQUÍ ESTÁ LA MAGIA DE ALINEACIÓN (GRID DE 3 COLUMNAS) */
+          .row { 
+            display: grid !important; 
+            grid-template-columns: 1.2fr 1fr auto !important; 
+            gap: 6px !important; 
+            align-items: center !important; 
+            border-bottom: 1px solid #f6f2ec !important; 
+            padding: 5px 0 !important; 
+            break-inside: avoid !important; 
+          }
+          
+          .row b { 
+            font-size: 9px !important; 
+            white-space: nowrap !important; 
+            overflow: hidden !important; 
+            text-overflow: ellipsis !important; 
+          }
+          
+          .row span { 
+            font-size: 8px !important; 
+            color: #6d6266 !important; 
+            text-align: right !important; 
+            white-space: nowrap !important; 
+          }
+          
+          /* Arreglar las etiquetas para que se vean perfectas */
+          .tag { 
+            font-size: 7.5px !important; 
+            padding: 2px 6px !important; 
+            border-radius: 4px !important; 
+            print-color-adjust: exact !important; 
+            -webkit-print-color-adjust: exact !important;
+            white-space: nowrap !important;
+            text-align: center !important;
+            display: inline-block !important;
+          }
+          
+          .t-en { background: #9F2241 !important; color: #ffffff !important; font-weight: bold !important; }
           .t-pr { background: #ddc8a4 !important; color: #56212f !important; }
+          .t-co { background: #e4ddd3 !important; color: #6d6266 !important; }
           
           /* Leyenda del mapa */
           .lg { display: flex !important; flex-wrap: wrap !important; gap: 6px !important; font-size: 7px !important; margin-top: 5px !important; }
@@ -453,7 +485,6 @@ $('bp').onclick = () => {
     </html>
   `;
 
-  // 5. Generar iframe invisible para imprimir
   const iframe = document.createElement('iframe');
   iframe.style.position = 'fixed';
   iframe.style.width = '0';
@@ -467,10 +498,8 @@ $('bp').onclick = () => {
   doc.close();
   iframe.contentWindow.focus();
   
-  // 6. Esperar a que carguen los estilos y mandar a imprimir
   setTimeout(() => {
     iframe.contentWindow.print();
-    
     const cleanup = () => { try { iframe.remove(); } catch(e){} };
     iframe.contentWindow.onafterprint = cleanup;
     setTimeout(cleanup, 60000);
