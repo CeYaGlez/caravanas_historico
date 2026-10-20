@@ -221,9 +221,9 @@
     });
 
     // Lógica para imprimir el Modal
-    const pdfBtn = modal.querySelector("#hist-pdf-btn");
-    if (pdfBtn) {
-      pdfBtn.addEventListener("click", () => {
+    const pdfBtnIframe = modal.querySelector("#hist-pdf-btn");
+    if (pdfBtnIframe) {
+      pdfBtnIframe.addEventListener("click", () => {
         const card = modal.querySelector(".hist-modal-card");
         if (!card) return;
         
@@ -260,6 +260,70 @@
         w.document.close();
         w.focus();
         setTimeout(() => { w.print(); }, 500); // Imprime y puedes guardar como PDF
+      });
+    }
+
+    // Lógica para imprimir el Modal con iframe (evita bloqueo de ventana)
+    const pdfBtn = modal.querySelector("#hist-pdf-btn");
+    if (pdfBtn) {
+      pdfBtn.addEventListener("click", () => {
+        const card = modal.querySelector(".hist-modal-card");
+        if (!card) return;
+
+        const clone = card.cloneNode(true);
+        clone.querySelectorAll(".hist-modal-close, .hist-tabs, .hist-print-btn").forEach(el => el.remove());
+
+        // Mostramos ambas pestañas para que salgan en el PDF
+        clone.querySelectorAll(".hist-tab-content").forEach(el => {
+          el.style.display = "block";
+          el.style.marginBottom = "30px";
+        });
+
+        let styles = "";
+        document.querySelectorAll("style, link[rel='stylesheet']").forEach(el => styles += el.outerHTML);
+
+        // Generamos el HTML de impresión con estilos forzados para las gráficas
+        const html = `
+          <html>
+            <head>
+              <title>Histórico - ${document.getElementById("hist-modal-title").textContent}</title>
+              ${styles}
+              <style>
+                body { background: white !important; padding: 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+                .hist-modal-card { box-shadow: none !important; border: none !important; margin: 0 !important; max-width: 100% !important; }
+                .hist-tab-content { display: block !important; page-break-after: always; }
+                .hist-tab-content:last-child { page-break-after: auto; }
+                /* Forzar gráficas en impresión */
+                .hist-chart-row { height: 150px; display: flex; align-items: flex-end; gap: 20px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid #ccc; page-break-inside: avoid; }
+                .hist-chart-year { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+                .hist-chart-bars { display: flex; gap: 4px; align-items: flex-end; height: 100%; width: 100%; justify-content: center; }
+                .hist-bar { width: 25px; border-radius: 4px 4px 0 0; min-height: 2px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+                .hist-bar.dentro { background: #8A1538 !important; }
+                .hist-bar.fuera { background: #B8860B !important; }
+              </style>
+            </head>
+            <body>${clone.outerHTML}</body>
+          </html>
+        `;
+
+        // Función auxiliar para imprimir usando iframe invisible
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'fixed';
+        iframe.style.width = '0';
+        iframe.style.height = '0';
+        iframe.style.border = 'none';
+        document.body.appendChild(iframe);
+        const doc = iframe.contentWindow.document;
+        doc.open();
+        doc.write(html);
+        doc.close();
+        iframe.contentWindow.focus();
+        
+        // Esperamos un poco para que carguen los estilos y mandamos a imprimir
+        setTimeout(() => {
+          iframe.contentWindow.print();
+          setTimeout(() => document.body.removeChild(iframe), 1000);
+        }, 500);
       });
     }
 

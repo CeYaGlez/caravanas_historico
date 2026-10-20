@@ -366,24 +366,36 @@ $('bp').onclick = () => {
   let styles = "";
   document.querySelectorAll("style, link[rel='stylesheet']").forEach(el => styles += el.outerHTML);
 
-  const w = window.open("", "_blank");
-  w.document.write(`
+  const html = `
     <html>
       <head>
         <title>Calendario Caravanas</title>
         ${styles}
         <style>
-          body { background: white !important; padding: 20px; }
+          body { background: white !important; padding: 20px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .g2 { grid-template-columns: 1fr !important; } /* Apila el mapa y la lista en el PDF */
           .map { max-height: 80vh !important; }
         </style>
       </head>
       <body>${clone.outerHTML}</body>
     </html>
-  `);
-  w.document.close();
-  w.focus();
-  setTimeout(() => { w.print(); }, 500);
+  `;
+
+  const iframe = document.createElement('iframe');
+  iframe.style.position = 'fixed';
+  iframe.style.width = '0';
+  iframe.style.height = '0';
+  iframe.style.border = 'none';
+  document.body.appendChild(iframe);
+  const doc = iframe.contentWindow.document;
+  doc.open();
+  doc.write(html);
+  doc.close();
+  iframe.contentWindow.focus();
+  setTimeout(() => {
+    iframe.contentWindow.print();
+    setTimeout(() => document.body.removeChild(iframe), 1000);
+  }, 500);
 };
 //
 draw();
