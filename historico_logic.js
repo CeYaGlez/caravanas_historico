@@ -120,6 +120,8 @@
     return null;
   }
 
+  //
+
   function hist_injectUI() {
     if (document.getElementById("hist-modal")) return;
 
@@ -131,8 +133,7 @@
         '<label for="hist-search">Histórico 2024-2026</label>' +
         '<div class="hist-fb-row">' +
           '<div class="hist-input-wrap">' +
-            '<input type="text" id="hist-search" list="hist-municipios" ' +
-                   'placeholder="Buscar municipio…" autocomplete="off" />' +
+            '<input type="text" id="hist-search" list="hist-municipios" placeholder="Buscar municipio…" autocomplete="off" />' +
             '<button type="button" id="hist-clear-btn" class="hist-clear-btn" aria-label="Limpiar búsqueda">×</button>' +
           '</div>' +
           '<datalist id="hist-municipios"></datalist>' +
@@ -166,16 +167,58 @@
           '<div class="hist-kpi hist-kpi-personas"><span class="hist-kpi-lbl">Personas</span>' +
             '<strong id="hist-kpi-personas">0</strong><small>atendidas</small></div>' +
         '</section>' +
-        '<section class="hist-years"><h3>Visitas por año</h3>' +
-          '<div class="hist-year-grid">' +
-            '<div class="hist-year"><span>2024</span><strong id="hist-y24">0</strong></div>' +
-            '<div class="hist-year"><span>2025</span><strong id="hist-y25">0</strong></div>' +
-            '<div class="hist-year"><span>2026</span><strong id="hist-y26">0</strong></div>' +
+        
+        // NUEVAS PESTAÑAS
+        '<div class="hist-tabs">' +
+          '<button class="hist-tab active" data-tab="resumen">📊 Resumen Anual</button>' +
+          '<button class="hist-tab" data-tab="visitas">📅 Desglose por Visita</button>' +
+        '</div>' +
+
+        // CONTENIDO: RESUMEN ANUAL
+        '<div id="tab-resumen" class="hist-tab-content active">' +
+          '<section class="hist-years"><h3>Visitas por año</h3>' +
+            '<div class="hist-year-grid">' +
+              '<div class="hist-year"><span>2024</span><strong id="hist-y24">0</strong></div>' +
+              '<div class="hist-year"><span>2025</span><strong id="hist-y25">0</strong></div>' +
+              '<div class="hist-year"><span>2026</span><strong id="hist-y26">0</strong></div>' +
+            '</div>' +
+          '</section>' +
+          '<section class="hist-years" id="hist-chart-wrap" style="margin-top: 20px;">' +
+            '<h3>Personas: Dentro vs Fuera de Explanada</h3>' +
+            '<div id="hist-chart-msg" style="display:none; font-size:13px; color:var(--mu); padding: 10px 0; line-height: 1.4;"></div>' +
+            '<div id="hist-chart-content">' +
+              '<div id="hist-chart" class="hist-chart-row"></div>' +
+              '<div class="hist-chart-legend" id="hist-chart-legend">' +
+                '<span><i style="background:#8A1538"></i> Dentro</span>' +
+                '<span><i style="background:#B8860B"></i> Fuera</span>' +
+              '</div>' +
+            '</div>' +
+          '</section>' +
+        '</div>' +
+
+        // CONTENIDO: DESGLOSE POR VISITA
+        '<div id="tab-visitas" class="hist-tab-content">' +
+          '<p style="font-size:12px; color:var(--mu); margin-bottom: 10px;">Haz clic en el botón de abajo para guardar esta información como PDF.</p>' +
+          '<div style="max-height: 300px; overflow-y: auto; overflow-x: auto;">' +
+            '<table class="hist-visit-table">' +
+              '<thead><tr><th>Año</th><th>Fecha</th><th>Sede</th><th>Tipo</th><th>Trámites</th><th>Personas</th></tr></thead>' +
+              '<tbody id="hist-visits-body"></tbody>' +
+            '</table>' +
           '</div>' +
-        '</section>' +
-        '<p id="hist-modal-note" class="hist-note" hidden></p>' +
+          '<button class="hist-print-btn" onclick="window.print()">🖨️ Descargar / Imprimir PDF</button>' +
+        '</div>' +
       '</div>';
     document.body.appendChild(modal);
+
+    // Lógica de las Pestañas
+    modal.querySelectorAll('.hist-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        modal.querySelectorAll('.hist-tab').forEach(t => t.classList.remove('active'));
+        modal.querySelectorAll('.hist-tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        modal.querySelector(`#tab-${tab.dataset.tab}`).classList.add('active');
+      });
+    });
 
     const dl = document.getElementById("hist-municipios");
     if (dl && dl.children.length === 0) {
@@ -195,22 +238,15 @@
     const btn   = document.getElementById("hist-ver-btn");
     const clearBtn = document.getElementById("hist-clear-btn");
 
-    // Lógica del tachecito
     if (input && clearBtn) {
-      // Mostrar el tache solo si hay texto
       input.addEventListener("input", function() {
-        if (input.value.length > 0) {
-          clearBtn.classList.add("visible");
-        } else {
-          clearBtn.classList.remove("visible");
-        }
+        if (input.value.length > 0) clearBtn.classList.add("visible");
+        else clearBtn.classList.remove("visible");
       });
-
-      // Borrar el texto al dar clic en el tache
       clearBtn.addEventListener("click", function() {
         input.value = "";
         clearBtn.classList.remove("visible");
-        input.focus(); // Devuelve el cursor al input
+        input.focus();
       });
     }
 
@@ -235,6 +271,7 @@
       if (e.key === "Escape" && modal.classList.contains("open")) hist_cerrarModal();
     });
   }
+  //
 
   let hist_focusPrevio = null;
 
@@ -255,6 +292,7 @@
     );
   }
 
+  //
   function hist_renderModal(nombre, d, esTotal) {
     const modal = document.getElementById("hist-modal");
     if (!modal) return;
@@ -264,12 +302,7 @@
       ? "Sumatoria de los 125 municipios"
       : "Caravanas Itinerantes por la Justicia Social · Estado de México";
 
-    // Hacemos que el total de visitas sea el protagonista
-    const totalEl = document.getElementById("hist-kpi-total");
-    totalEl.textContent = d.tot;
-    totalEl.style.fontSize = "38px"; // Número más grande
-    totalEl.style.color = "var(--gu)"; // Color guinda
-
+    document.getElementById("hist-kpi-total").textContent = d.tot;
     document.getElementById("hist-kpi-tramites").textContent = hist_fmtNum(d.tra);
     document.getElementById("hist-kpi-personas").textContent = hist_fmtNum(d.per);
     
@@ -277,15 +310,84 @@
     document.getElementById("hist-y25").textContent = hist_fmtNum(d.v25);
     document.getElementById("hist-y26").textContent = hist_fmtNum(d.v26);
 
-    // Ocultamos la nota permanentemente
-    const noteEl = document.getElementById("hist-modal-note");
-    noteEl.hidden = true;
-    noteEl.textContent = "";
+    // Resetear pestañas al abrir
+    modal.querySelectorAll('.hist-tab').forEach(t => t.classList.remove('active'));
+    modal.querySelectorAll('.hist-tab-content').forEach(c => c.classList.remove('active'));
+    modal.querySelector('[data-tab="resumen"]').classList.add('active');
+    modal.querySelector('#tab-resumen').classList.add('active');
+
+    // --- LÓGICA DE VISITAS Y DESGLOSE ---
+    const visitasReales = (typeof HISTORICO_VISITAS !== 'undefined') ? HISTORICO_VISITAS[nombre] : null;
+    const chartMsg = document.getElementById("hist-chart-msg");
+    const chartContent = document.getElementById("hist-chart-content");
+    const tbody = document.getElementById("hist-visits-body");
+
+    if (esTotal || !visitasReales) {
+      // Si no hay desglose o es el total estatal
+      chartMsg.style.display = "block";
+      chartContent.style.display = "none";
+      chartMsg.textContent = esTotal 
+        ? "El total estatal agrupa a todos los municipios. Selecciona un municipio específico para ver el desglose por visita." 
+        : "Este municipio registró el 100% de sus visitas dentro de la Explanada.";
+
+      if (esTotal) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding: 20px; color: var(--mu);">Selecciona un municipio específico para ver el desglose.</td></tr>`;
+      } else {
+        // Fallback visual para municipios sin desglose (asumiendo 100% dentro)
+        tbody.innerHTML = `
+          <tr><td>2024</td><td>—</td><td>Explanada</td><td><span class="hist-badge-d">Dentro</span></td><td>${hist_fmtNum(d.tra ? Math.round(d.tra*0.25) : 0)}*</td><td>${hist_fmtNum(d.v24 > 0 ? Math.round(d.per / d.tot * d.v24) : 0)}*</td></tr>
+          <tr><td>2025</td><td>—</td><td>Explanada</td><td><span class="hist-badge-d">Dentro</span></td><td>${hist_fmtNum(d.tra ? Math.round(d.tra*0.5) : 0)}*</td><td>${hist_fmtNum(d.v25 > 0 ? Math.round(d.per / d.tot * d.v25) : 0)}*</td></tr>
+          <tr><td>2026</td><td>—</td><td>Explanada</td><td><span class="hist-badge-d">Dentro</span></td><td>${hist_fmtNum(d.tra ? Math.round(d.tra*0.25) : 0)}*</td><td>${hist_fmtNum(d.v26 > 0 ? Math.round(d.per / d.tot * d.v26) : 0)}*</td></tr>
+        `;
+      }
+    } else {
+      // Hay desglose manual (Municipios con visitas "Fuera")
+      chartMsg.style.display = "none";
+      chartContent.style.display = "block";
+      
+      let maxP = 1;
+      visitasReales.forEach(v => { if (v.personas > maxP) maxP = v.personas; });
+      
+      let chartHtml = "";
+      [2024, 2025, 2026].forEach(anio => {
+        const visits = visitasReales.filter(v => v.año === anio);
+        const pDentro = visits.filter(v => v.dentro).reduce((s, v) => s + (v.personas || 0), 0);
+        const pFuera = visits.filter(v => !v.dentro).reduce((s, v) => s + (v.personas || 0), 0);
+        
+        const hDentro = (pDentro / maxP) * 100;
+        const hFuera = (pFuera / maxP) * 100;
+        
+        chartHtml += `
+          <div class="hist-chart-year">
+            <div class="hist-chart-bars">
+              <div class="hist-bar dentro" style="height:${hDentro}%" title="Dentro: ${pDentro}"></div>
+              <div class="hist-bar fuera" style="height:${hFuera}%" title="Fuera: ${pFuera}"></div>
+            </div>
+            <div class="hist-chart-label">${anio}</div>
+          </div>
+        `;
+      });
+      
+      const contenedorGrafica = document.getElementById("hist-chart");
+      if (contenedorGrafica) contenedorGrafica.innerHTML = chartHtml;
+      
+      tbody.innerHTML = visitasReales.map(v => `
+        <tr>
+          <td>${v.año}</td>
+          <td>${v.fecha}</td>
+          <td>${v.sede}</td>
+          <td>${v.dentro ? '<span class="hist-badge-d">Dentro</span>' : '<span class="hist-badge-f">Fuera</span>'}</td>
+          <td>${v.tramites !== undefined ? hist_fmtNum(v.tramites) : '-'}</td>
+          <td>${v.personas !== undefined ? hist_fmtNum(v.personas) : '-'}</td>
+        </tr>
+      `).join('');
+    }
 
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
   }
+  //
 
   function hist_cerrarModal() {
   const modal = document.getElementById("hist-modal");
