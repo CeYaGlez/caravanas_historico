@@ -545,6 +545,10 @@
     modal.classList.add("open");
     modal.setAttribute("aria-hidden", "false");
     document.body.style.overflow = "hidden";
+      try { 
+      const pHelp = window.parent.document.getElementById('helpbtn'); 
+      if (pHelp) pHelp.style.display = 'none'; 
+    } catch(e) {}
   }
   //
 
@@ -564,6 +568,10 @@
   modal.setAttribute("aria-hidden", "true");
 
   document.body.style.overflow = "";
+  try { 
+    const pHelp = window.parent.document.getElementById('helpbtn'); 
+    if (pHelp) pHelp.style.display = 'block'; 
+  } catch(e) {}
 }
 
   function hist_hookMapa() {
