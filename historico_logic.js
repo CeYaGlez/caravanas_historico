@@ -219,50 +219,6 @@
         modal.querySelector(`#tab-${tab.dataset.tab}`).classList.add('active');
       });
     });
-
-    // Lógica para imprimir el Modal
-    const pdfBtnIframe = modal.querySelector("#hist-pdf-btn");
-    if (pdfBtnIframe) {
-      pdfBtnIframe.addEventListener("click", () => {
-        const card = modal.querySelector(".hist-modal-card");
-        if (!card) return;
-        
-        // Clonamos el contenido para limpiarlo
-        const clone = card.cloneNode(true);
-        clone.querySelectorAll(".hist-modal-close, .hist-tabs, .hist-print-btn").forEach(el => el.remove());
-        
-        // Mostramos TODAS las pestañas para que salgan en el PDF
-        clone.querySelectorAll(".hist-tab-content").forEach(el => {
-          el.style.display = "block";
-          el.style.marginBottom = "20px";
-        });
-
-        // Recolectamos los estilos actuales
-        let styles = "";
-        document.querySelectorAll("style, link[rel='stylesheet']").forEach(el => styles += el.outerHTML);
-
-        const w = window.open("", "_blank");
-        w.document.write(`
-          <html>
-            <head>
-              <title>Histórico - ${document.getElementById("hist-modal-title").textContent}</title>
-              ${styles}
-              <style>
-                body { background: white !important; padding: 20px; }
-                .hist-modal-card { box-shadow: none !important; border: none !important; margin: 0 !important; max-width: 100% !important; }
-                .hist-tab-content { display: block !important; }
-                .hist-chart-bars { display: none !important; } /* En PDF no queremos la gráfica, solo la tabla */
-              </style>
-            </head>
-            <body>${clone.outerHTML}</body>
-          </html>
-        `);
-        w.document.close();
-        w.focus();
-        setTimeout(() => { w.print(); }, 500); // Imprime y puedes guardar como PDF
-      });
-    }
-
     // Lógica para imprimir el Modal con iframe (evita bloqueo de ventana)
     const pdfBtn = modal.querySelector("#hist-pdf-btn");
     if (pdfBtn) {
@@ -321,9 +277,15 @@
         
         // Esperamos un poco para que carguen los estilos y mandamos a imprimir
         setTimeout(() => {
+          iframe.contentWindow.focus();
           iframe.contentWindow.print();
-          setTimeout(() => document.body.removeChild(iframe), 1000);
+
+          // Eliminar el iframe cuando el usuario cierre el diálogo de impresión
+          const cleanup = () => { try { iframe.remove(); } catch(e){} };
+          iframe.contentWindow.onafterprint = cleanup;
+          setTimeout(cleanup, 60000); // fallback por si onafterprint no dispara
         }, 500);
+
       });
     }
 
