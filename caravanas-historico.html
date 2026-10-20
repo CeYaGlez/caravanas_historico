@@ -355,8 +355,36 @@ $('bl').onclick = () => {
   draw();
 };
 //
-$('bp').onclick=()=>{try{window.print()}catch(e){alert('Usa Ctrl/Cmd + P y elige "Guardar como PDF".')}};
+$('bp').onclick = () => {
+  const mainContent = document.querySelector('.w');
+  if (!mainContent) return;
 
+  const clone = mainContent.cloneNode(true);
+  // Quitamos los filtros, botones y notas del clon
+  clone.querySelectorAll('.fb, .note, .sp').forEach(el => el.remove());
+
+  let styles = "";
+  document.querySelectorAll("style, link[rel='stylesheet']").forEach(el => styles += el.outerHTML);
+
+  const w = window.open("", "_blank");
+  w.document.write(`
+    <html>
+      <head>
+        <title>Calendario Caravanas</title>
+        ${styles}
+        <style>
+          body { background: white !important; padding: 20px; }
+          .g2 { grid-template-columns: 1fr !important; } /* Apila el mapa y la lista en el PDF */
+          .map { max-height: 80vh !important; }
+        </style>
+      </head>
+      <body>${clone.outerHTML}</body>
+    </html>
+  `);
+  w.document.close();
+  w.focus();
+  setTimeout(() => { w.print(); }, 500);
+};
 //
 draw();
 

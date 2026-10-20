@@ -258,16 +258,3 @@
 }
 .hist-print-btn:hover { background: #6b1029; }
 
-/* ===== FORMATO PARA IMPRESIÓN / PDF ===== */
-@media print {
-  body * { visibility: hidden; }
-  .hist-modal-card, .hist-modal-card * { visibility: visible; }
-  .hist-modal-card {
-    position: absolute; left: 0; top: 0; width: 100%; max-width: 100%;
-    box-shadow: none; border: none; padding: 0; background: white; color: black;
-  }
-  .hist-modal-close, .hist-tabs, .hist-print-btn, .hist-search-wrap { display: none !important; }
-  .hist-tab-content { display: block !important; margin-bottom: 30px; }
-  .hist-kpi { border: 1px solid #ccc; }
-  .hist-chart-bars { display: none; } /* Ocultamos la gráfica visual en PDF, la tabla es mejor */
-}

@@ -205,7 +205,7 @@
               '<tbody id="hist-visits-body"></tbody>' +
             '</table>' +
           '</div>' +
-          '<button class="hist-print-btn" onclick="window.print()">🖨️ Descargar / Imprimir PDF</button>' +
+          '<button class="hist-print-btn" id="hist-pdf-btn">🖨️ Descargar / Imprimir PDF</button>' +
         '</div>' +
       '</div>';
     document.body.appendChild(modal);
@@ -219,6 +219,49 @@
         modal.querySelector(`#tab-${tab.dataset.tab}`).classList.add('active');
       });
     });
+
+    // Lógica para imprimir el Modal
+    const pdfBtn = modal.querySelector("#hist-pdf-btn");
+    if (pdfBtn) {
+      pdfBtn.addEventListener("click", () => {
+        const card = modal.querySelector(".hist-modal-card");
+        if (!card) return;
+        
+        // Clonamos el contenido para limpiarlo
+        const clone = card.cloneNode(true);
+        clone.querySelectorAll(".hist-modal-close, .hist-tabs, .hist-print-btn").forEach(el => el.remove());
+        
+        // Mostramos TODAS las pestañas para que salgan en el PDF
+        clone.querySelectorAll(".hist-tab-content").forEach(el => {
+          el.style.display = "block";
+          el.style.marginBottom = "20px";
+        });
+
+        // Recolectamos los estilos actuales
+        let styles = "";
+        document.querySelectorAll("style, link[rel='stylesheet']").forEach(el => styles += el.outerHTML);
+
+        const w = window.open("", "_blank");
+        w.document.write(`
+          <html>
+            <head>
+              <title>Histórico - ${document.getElementById("hist-modal-title").textContent}</title>
+              ${styles}
+              <style>
+                body { background: white !important; padding: 20px; }
+                .hist-modal-card { box-shadow: none !important; border: none !important; margin: 0 !important; max-width: 100% !important; }
+                .hist-tab-content { display: block !important; }
+                .hist-chart-bars { display: none !important; } /* En PDF no queremos la gráfica, solo la tabla */
+              </style>
+            </head>
+            <body>${clone.outerHTML}</body>
+          </html>
+        `);
+        w.document.close();
+        w.focus();
+        setTimeout(() => { w.print(); }, 500); // Imprime y puedes guardar como PDF
+      });
+    }
 
     const dl = document.getElementById("hist-municipios");
     if (dl && dl.children.length === 0) {
