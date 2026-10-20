@@ -364,19 +364,67 @@ $('bp').onclick = () => {
   // 1. Quitar elementos innecesarios
   clone.querySelectorAll('.fb, .note, .sp, #mapzoom, header, .bar, footer, .hi, button, #inf, .lg').forEach(el => el.remove());
   
-  // 2. Ajustar el Mapa para que quepa en la Página 1 junto con el título
+  // 2. Preparar las piezas (Título, En Curso, Mapa)
+  const title = clone.querySelector('h1').outerHTML;
+  const sub = clone.querySelector('.sub').outerHTML;
+  const nowbox = clone.querySelector('#nowbox').outerHTML;
+  const cnt = clone.querySelector('#cnt').textContent;
+  
   const svgClone = clone.querySelector('svg.map');
   if (svgClone) {
     svgClone.setAttribute('viewBox', '0 0 700 706');
-    svgClone.style.maxHeight = 'none';
-    svgClone.style.height = '420px'; // Tamaño ideal para que quepa con el título
-    svgClone.style.width = '100%';
-    svgClone.style.display = 'block';
+    svgClone.style.cssText = 'width: 100%; height: 480px; display: block; margin: 0 auto;';
   }
+  
+  // 3. Reconstruir la lista como tabla real
+  const lsClone = clone.querySelector('#ls');
+  const grupos = Array.from(lsClone.querySelectorAll('.cg'));
+  
+  // Calcular dónde dividir en 2 columnas equitativas
+  const counts = grupos.map(g => g.querySelectorAll('.row').length);
+  const total = counts.reduce((a,b)=>a+b, 0);
+  let mid = total / 2;
+  let c1 = 0, splitIndex = 1;
+  for (let i = 0; i < counts.length; i++) {
+    c1 += counts[i];
+    if (c1 >= mid) { splitIndex = i + 1; break; }
+  }
+  
+  let col1Html = "";
+  let col2Html = "";
+  
+  grupos.forEach((g, i) => {
+    const ghHtml = g.querySelector('.gh').outerHTML;
+    const rows = Array.from(g.querySelectorAll('.row'));
+    
+    let groupHtml = `<div style="break-inside: avoid; margin-bottom: 15px;">`;
+    groupHtml += ghHtml.replace('class="gh"', 'style="font-weight:800; font-size:11px; margin-bottom:4px; padding-bottom:3px; border-bottom:2px solid #e3dbd0; color:#56212f;"');
+    
+    groupHtml += `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; font-size:10px;">`;
+    rows.forEach(r => {
+      const b = r.querySelector('b').innerHTML;
+      const span = r.querySelector('span').innerHTML;
+      const stDiv = r.querySelector('.st');
+      const stHtml = stDiv ? stDiv.innerHTML : '';
+      
+      groupHtml += `
+        <tr style="border-bottom: 1px solid #f6f2ec;">
+          <td style="padding: 4px 0; width: 50%;">${b}</td>
+          <td style="padding: 4px 0; text-align: right; width: 30%; color: #6d6266;">${span}</td>
+          <td style="padding: 4px 0; text-align: right; width: 20%;">${stHtml}</td>
+        </tr>
+      `;
+    });
+    groupHtml += `</table></div>`;
+    
+    if (i < splitIndex) col1Html += groupHtml;
+    else col2Html += groupHtml;
+  });
 
   let styles = "";
   document.querySelectorAll("style, link[rel='stylesheet']").forEach(el => styles += el.outerHTML);
 
+  // 4. Armar el HTML final con saltos de página
   const html = `
     <html>
       <head>
@@ -390,27 +438,8 @@ $('bp').onclick = () => {
             font-family: Gotham, Montserrat, system-ui, sans-serif; font-size: 10px; 
           }
           
-          .w { max-width: 100% !important; padding: 0 !important; }
           h1 { font-size: 18px !important; margin: 0 0 2px 0 !important; color: #9F2241 !important;}
           .sub { font-size: 10px !important; margin-bottom: 15px !important; color: #6d6266 !important; }
-          
-          /* CONTENEDOR PRINCIPAL */
-          .g2 { display: block !important; }
-          
-          /* PÁGINA 1: Título + En Curso + Mapa */
-          .g2 > div:first-child { 
-            margin-bottom: 20px !important;
-          }
-          
-          /* PÁGINA 2: Lista de municipios (Forzamos salto de hoja aquí) */
-          .g2 > div:last-child { 
-            page-break-before: always !important; 
-            break-before: page !important;
-            padding-top: 10px !important;
-          }
-          
-          .c { border: none !important; padding: 0 !important; margin-bottom: 10px !important; }
-          .c h2 { font-size: 14px !important; margin: 0 0 10px 0 !important; color: #56212f !important; }
           
           /* Barra de "En curso hoy" */
           #nowbox { margin-bottom: 15px !important; padding: 10px !important; border-left: 4px solid #9F2241 !important; background: #fbf9f6 !important; }
@@ -421,76 +450,43 @@ $('bp').onclick = () => {
           .nc span { font-size: 8px !important; display: block !important; }
           .nc em { font-size: 8px !important; color: #9F2241 !important; font-style: normal !important; font-weight: bold !important; }
           
-          /* ===== PÁGINA 2: LISTA EN 2 COLUMNAS ===== */
-          #ls { 
-            column-count: 2 !important; 
-            column-gap: 30px !important; 
-            display: block !important; 
-            margin-top: 10px;
-          }
+          /* Mapa */
+          svg.map { width: 100% !important; height: 480px !important; display: block !important; margin: 0 auto !important; }
           
-          .cg { 
-            break-inside: avoid !important; 
-            page-break-inside: avoid !important; 
-            margin-bottom: 15px !important; 
-          }
-          
-          .gh { font-size: 11px !important; margin: 0 0 5px 0 !important; padding-bottom: 3px !important; border-bottom: 2px solid #e3dbd0 !important; }
-          
-          /* Usamos Flexbox para las filas, es más seguro que table-cell */
-          .row { 
-            display: flex !important; 
-            justify-content: space-between !important;
-            align-items: center !important;
-            border-bottom: 1px solid #f6f2ec !important; 
-            padding: 4px 0 !important; 
-            width: 100% !important;
-          }
-          
-          /* Columna 1: Nombre (Ocupa el espacio restante) */
-          .row b { 
-            flex: 1 !important;
-            font-size: 9px !important; 
-            white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            margin-right: 5px !important;
-          }
-          
-          /* Columna 2: Fecha (Ancho fijo a la derecha) */
-          .row > span { 
-            font-size: 8px !important; 
-            color: #6d6266 !important; 
-            text-align: right !important; 
-            width: 90px !important; 
-            margin-right: 8px !important;
-          }
-          
-          /* Columna 3: Etiqueta de estado (Ancho fijo a la derecha) */
-          .row .st { 
-            width: 55px !important; 
-            text-align: right !important; 
-          }
-          
-          /* Etiquetas perfectas */
+          /* Etiquetas perfectas (Restaurando colores) */
           .tag { 
-            font-size: 7px !important; 
-            padding: 2px 4px !important; 
-            border-radius: 3px !important; 
-            print-color-adjust: exact !important; 
-            -webkit-print-color-adjust: exact !important;
-            display: inline-block !important;
-            text-align: center !important;
-            width: 100% !important;
-            box-sizing: border-box !important;
+            font-size: 7px !important; padding: 2px 4px !important; border-radius: 3px !important; 
+            print-color-adjust: exact !important; -webkit-print-color-adjust: exact !important;
+            display: inline-block !important; text-align: center !important;
           }
           .t-en { background: #9F2241 !important; color: #ffffff !important; font-weight: bold !important; }
           .t-pr { background: #ddc8a4 !important; color: #56212f !important; }
           .t-co { background: #e4ddd3 !important; color: #6d6266 !important; }
-          
         </style>
       </head>
-      <body>${clone.outerHTML}</body>
+      <body>
+        <!-- PÁGINA 1 -->
+        <div style="page-break-after: always;">
+          ${title}
+          ${sub}
+          ${nowbox}
+          <div style="margin-top: 10px;">
+            ${svgClone ? svgClone.outerHTML : ''}
+          </div>
+        </div>
+        
+        <!-- PÁGINA 2 -->
+        <div style="page-break-before: always; padding-top: 10px;">
+          <h2 style="font-size:14px; color:#56212f; margin:0 0 10px 0;">${cnt}</h2>
+          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
+            <tr>
+              <td width="48%" valign="top" style="padding-right: 15px; border-right: 1px dashed #ccc;">${col1Html}</td>
+              <td width="4%"></td>
+              <td width="48%" valign="top" style="padding-left: 15px;">${col2Html}</td>
+            </tr>
+          </table>
+        </div>
+      </body>
     </html>
   `;
 
