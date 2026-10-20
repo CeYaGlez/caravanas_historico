@@ -9,27 +9,89 @@
     .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
     .toLowerCase().trim();
 
+  // en historico_logic.js
   const HIST_K2N = {
-    ixt:"Ixtapan de la Sal", coa:"Coatepec Harinas", tex:"Texcaltitlán",
-    sul:"Sultepec", tem:"Temascaltepec", tnc:"Tenancingo", tla:"Tlatlaya",
-    ama:"Amatepec", otu:"Otumba", nop:"Nopaltepec", axa:"Axapusco",
-    teo:"Teotihuacán", tec:"Tecamac", chi:"Chiautla", tez:"Tezoyuca",
-    nau:"Naucalpan", tep:"Tepotzotlán", oco:"Ocoyoacac",
-    atz:"Atizapán", xon:"Xonacatlán", atzz:"Atizapán de Zaragoza"
+    // ── Octubre (21) ──
+    ixt:  "Ixtapan de la Sal",
+    coa:  "Coatepec Harinas",
+    tex:  "Texcaltitlán",
+    sul:  "Sultepec",
+    tem:  "Temascaltepec",
+    tnc:  "Tenancingo",
+    tla:  "Tlatlaya",
+    ama:  "Amatepec",
+    otu:  "Otumba",
+    nop:  "Nopaltepec",
+    axa:  "Axapusco",
+    teo:  "Teotihuacán",
+    tec:  "Tecámac",                // ⬆ antes "Tecamac"
+    chi:  "Chiautla",
+    tez:  "Tezoyuca",
+    nau:  "Naucalpan de Juárez",    // ⬆ antes "Naucalpan"
+    tep:  "Tepotzotlán",
+    oco:  "Ocoyoacac",
+    atz:  "Atizapán (Santa Cruz)",  // ⬆ antes "Atizapán"
+    xon:  "Xonacatlán",
+    atzz: "Atizapán de Zaragoza",
+    // ── Noviembre (14) ──
+    vlla: "Villa de Allende",
+    amnc: "Amanalco de Becerra",
+    vlb:  "Valle de Bravo",
+    dng:  "Donato Guerra",
+    zmp:  "Zumpango",
+    cut:  "Cuautitlán",             // ⬆ antes "Cuautitlán México"
+    tly:  "Teoloyucan",
+    hyp:  "Hueypoxtla",
+    cyp:  "Coyotepec",
+    lrm:  "Lerma",
+    tml:  "Timilpan",
+    mrl:  "Morelos",
+    elo:  "El Oro",
+    atc:  "Atlacomulco",
+    // ── Diciembre (10) ──
+    znc:  "Zinacantepec",
+    tlc:  "Toluca",
+    clm:  "Calimaya",
+    nzc:  "Nezahualcóyotl",
+    chm:  "Chimalhuacán",
+    tlm:  "Tlalmanalco",
+    ecg:  "Ecatzingo",
+    vdc:  "Villa del Carbón",
+    cph:  "Capulhuac",
+    jqp:  "Jiquipilco"
   };
+    //
   const HIST_ALIAS = {
-    "atizapan (santa cruz)":"Atizapán",
-    "santa cruz atizapan":"Atizapán",
-    "atizapan":"Atizapán",
-    "santo tomas":"Santo Tomás de los Plátanos",
-    "san simon de guerrero":"San Simon de Guerrero",
-    "atlacomulco de ruiz castaneda":"Atlacomulco",
-    "coacalco de berriozabal":"Coacalco",
-    "ecatepec de morelos":"Ecatepec",
-    "tlalnepantla de baz":"Tlalnepantla",
-    "valle de chalco solidaridad":"Valle de Chalco",
-    "soyaniquilpan de juarez":"Soyaniquilpan"
+    // ── Ambiguos: data-n del mapa puede venir en corto ──
+    "atizapan":              "Atizapán (Santa Cruz)",   // ← CRÍTICO: sin esto, el prefix matchea "Atizapán de Zaragoza"
+    "santa cruz atizapan":   "Atizapán (Santa Cruz)",
+    "amanalco":              "Amanalco de Becerra",
+    "tianguistenco":         "Santiago Tianguistenco",
+    "santo tomas":           "Santo Tomás de los Plátanos",
+    "cuautitlan mexico":     "Cuautitlán",
+    // ── Cortos del "Resumen por municipio" del Excel viejo ──
+    "naucalpan":             "Naucalpan de Juárez",
+    "ecatepec":              "Ecatepec de Morelos",
+    "tlalnepantla":          "Tlalnepantla de Baz",
+    "coacalco":              "Coacalco de Berriozábal",
+    "valle de chalco":       "Valle de Chalco Solidaridad",
+    "acambay":               "Acambay de Ruíz Castañeda",
+    "soyaniquilpan":         "Soyaniquilpan de Juárez",
+    // ── Variantes sin acento / con punto que llegan de informes viejos ──
+    "nicolas romero":        "Nicolás Romero",
+    "san simon de guerrero": "San Simón de Guerrero",
+    "tecamac":               "Tecámac",
+    "zumpahuacan":           "Zumpahuacán",
+    "sultepec.":             "Sultepec",
+    "tultepec.":             "Tultepec",
+    "papalotla.":            "Papalotla",
+    "jocotitlan.":           "Jocotitlán",
+    "cuautitlan izcalli.":   "Cuautitlán Izcalli",
+    "huhuetoca":             "Huehuetoca",
+    "atlacomulco de ruiz castaneda": "Atlacomulco"
   };
+
+  
 
   function hist_buscarMunicipio(nombre) {
     if (!nombre) return null;
@@ -174,7 +236,10 @@
     });
   }
 
+  let hist_focusPrevio = null;
+
   function hist_abrirModal(nombre) {
+    hist_focusPrevio = document.activeElement;
     const key = hist_buscarMunicipio(nombre);
     if (!key) { hist_abrirModalTotal(); return; }
     const d = HISTORICO_MUNICIPIOS[key];
@@ -223,12 +288,22 @@
   }
 
   function hist_cerrarModal() {
-    const modal = document.getElementById("hist-modal");
-    if (!modal) return;
-    modal.classList.remove("open");
-    modal.setAttribute("aria-hidden", "true");
-    document.body.style.overflow = "";
+  const modal = document.getElementById("hist-modal");
+  if (!modal) return;
+
+  // 1º saca el foco ANTES de tocar clases / aria
+  if (document.activeElement && modal.contains(document.activeElement)) {
+    document.activeElement.blur();
   }
+
+  // 2º cierra visualmente
+  modal.classList.remove("open");
+
+  // 3º ahora sí oculta a lectores de pantalla
+  modal.setAttribute("aria-hidden", "true");
+
+  document.body.style.overflow = "";
+}
 
   function hist_hookMapa() {
     const map = document.getElementById("map");
