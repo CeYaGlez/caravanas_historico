@@ -361,24 +361,22 @@ $('bp').onclick = () => {
 
   const clone = mainContent.cloneNode(true);
   
-  // 1. Quitar elementos interactivos o innecesarios
+  // 1. Quitar elementos innecesarios
   clone.querySelectorAll('.fb, .note, .sp, #mapzoom, header, .bar, footer, .hi, button, #inf, .lg').forEach(el => el.remove());
   
-  // 2. Ajustar el Mapa para que ocupe toda la página 1
+  // 2. Ajustar el Mapa para que quepa en la Página 1 junto con el título
   const svgClone = clone.querySelector('svg.map');
   if (svgClone) {
     svgClone.setAttribute('viewBox', '0 0 700 706');
     svgClone.style.maxHeight = 'none';
-    svgClone.style.height = '600px'; // Mapa GIGANTE para la página 1
+    svgClone.style.height = '420px'; // Tamaño ideal para que quepa con el título
     svgClone.style.width = '100%';
     svgClone.style.display = 'block';
   }
 
-  // 3. Recolectar estilos actuales
   let styles = "";
   document.querySelectorAll("style, link[rel='stylesheet']").forEach(el => styles += el.outerHTML);
 
-  // 4. Generar el HTML con la separación de páginas
   const html = `
     <html>
       <head>
@@ -387,47 +385,46 @@ $('bp').onclick = () => {
         <style>
           @page { size: portrait; margin: 10mm; }
           body { 
-            background: white !important; 
-            padding: 0; 
-            margin: 0; 
-            -webkit-print-color-adjust: exact; 
-            print-color-adjust: exact; 
-            font-family: Gotham, Montserrat, system-ui, sans-serif; 
-            font-size: 10px; 
+            background: white !important; padding: 0; margin: 0; 
+            -webkit-print-color-adjust: exact; print-color-adjust: exact; 
+            font-family: Gotham, Montserrat, system-ui, sans-serif; font-size: 10px; 
           }
           
           .w { max-width: 100% !important; padding: 0 !important; }
           h1 { font-size: 18px !important; margin: 0 0 2px 0 !important; color: #9F2241 !important;}
           .sub { font-size: 10px !important; margin-bottom: 15px !important; color: #6d6266 !important; }
           
-          /* EL TRUCO: Forzar saltos de página */
+          /* CONTENEDOR PRINCIPAL */
           .g2 { display: block !important; }
+          
+          /* PÁGINA 1: Título + En Curso + Mapa */
           .g2 > div:first-child { 
-            page-break-after: always !important; 
-            break-after: page !important;
-            min-height: 90vh; /* Ocupa casi toda la hoja */
+            margin-bottom: 20px !important;
           }
+          
+          /* PÁGINA 2: Lista de municipios (Forzamos salto de hoja aquí) */
           .g2 > div:last-child { 
             page-break-before: always !important; 
             break-before: page !important;
+            padding-top: 10px !important;
           }
           
-          .c { border: none !important; padding: 0 !important; margin-bottom: 15px !important; }
+          .c { border: none !important; padding: 0 !important; margin-bottom: 10px !important; }
           .c h2 { font-size: 14px !important; margin: 0 0 10px 0 !important; color: #56212f !important; }
           
           /* Barra de "En curso hoy" */
-          #nowbox { margin-bottom: 20px !important; padding: 10px !important; border-left: 4px solid #9F2241 !important; background: #fbf9f6 !important; }
-          #nowbox h2 { font-size: 12px !important; margin: 0 0 5px 0 !important; color: #231a1d !important; }
-          .nw { display: table !important; width: 100% !important; table-layout: fixed; }
-          .nc { display: table-cell !important; border: 1px solid #e3dbd0 !important; padding: 8px !important; border-left: 3px solid #9F2241 !important; width: 33%; }
+          #nowbox { margin-bottom: 15px !important; padding: 10px !important; border-left: 4px solid #9F2241 !important; background: #fbf9f6 !important; }
+          #nowbox h2 { font-size: 12px !important; margin: 0 0 8px 0 !important; color: #231a1d !important; }
+          .nw { display: flex !important; gap: 10px !important; justify-content: space-between !important; }
+          .nc { border: 1px solid #e3dbd0 !important; padding: 6px !important; border-left: 3px solid #9F2241 !important; flex: 1 !important; }
           .nc b { font-size: 10px !important; display: block !important; }
-          .nc span { font-size: 9px !important; display: block !important; }
-          .nc em { font-size: 9px !important; color: #9F2241 !important; font-style: normal !important; font-weight: bold !important; }
+          .nc span { font-size: 8px !important; display: block !important; }
+          .nc em { font-size: 8px !important; color: #9F2241 !important; font-style: normal !important; font-weight: bold !important; }
           
           /* ===== PÁGINA 2: LISTA EN 2 COLUMNAS ===== */
           #ls { 
             column-count: 2 !important; 
-            column-gap: 20px !important; 
+            column-gap: 30px !important; 
             display: block !important; 
             margin-top: 10px;
           }
@@ -440,39 +437,39 @@ $('bp').onclick = () => {
           
           .gh { font-size: 11px !important; margin: 0 0 5px 0 !important; padding-bottom: 3px !important; border-bottom: 2px solid #e3dbd0 !important; }
           
-          /* USAR TABLA REAL PARA QUE EL PDF NO LO ROMPA */
+          /* Usamos Flexbox para las filas, es más seguro que table-cell */
           .row { 
-            display: table !important; 
-            width: 100% !important; 
+            display: flex !important; 
+            justify-content: space-between !important;
+            align-items: center !important;
             border-bottom: 1px solid #f6f2ec !important; 
             padding: 4px 0 !important; 
+            width: 100% !important;
           }
           
-          /* Columna 1: Nombre (50%) */
+          /* Columna 1: Nombre (Ocupa el espacio restante) */
           .row b { 
-            display: table-cell !important; 
-            width: 50% !important; 
+            flex: 1 !important;
             font-size: 9px !important; 
-            vertical-align: middle !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            margin-right: 5px !important;
           }
           
-          /* Columna 2: Fecha (35%) */
+          /* Columna 2: Fecha (Ancho fijo a la derecha) */
           .row > span { 
-            display: table-cell !important; 
-            width: 35% !important; 
-            text-align: right !important; 
             font-size: 8px !important; 
             color: #6d6266 !important; 
-            vertical-align: middle !important;
-            padding-right: 5px !important;
+            text-align: right !important; 
+            width: 90px !important; 
+            margin-right: 8px !important;
           }
           
-          /* Columna 3: Etiqueta de estado (15%) */
+          /* Columna 3: Etiqueta de estado (Ancho fijo a la derecha) */
           .row .st { 
-            display: table-cell !important; 
-            width: 15% !important; 
+            width: 55px !important; 
             text-align: right !important; 
-            vertical-align: middle !important;
           }
           
           /* Etiquetas perfectas */
@@ -483,6 +480,9 @@ $('bp').onclick = () => {
             print-color-adjust: exact !important; 
             -webkit-print-color-adjust: exact !important;
             display: inline-block !important;
+            text-align: center !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
           }
           .t-en { background: #9F2241 !important; color: #ffffff !important; font-weight: bold !important; }
           .t-pr { background: #ddc8a4 !important; color: #56212f !important; }
@@ -494,7 +494,6 @@ $('bp').onclick = () => {
     </html>
   `;
 
-  // 5. Generar iframe invisible
   const iframe = document.createElement('iframe');
   iframe.style.position = 'fixed';
   iframe.style.width = '0';
@@ -508,7 +507,6 @@ $('bp').onclick = () => {
   doc.close();
   iframe.contentWindow.focus();
   
-  // 6. Imprimir
   setTimeout(() => {
     iframe.contentWindow.print();
     const cleanup = () => { try { iframe.remove(); } catch(e){} };
