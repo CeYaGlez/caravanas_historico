@@ -215,3 +215,59 @@
 @media print {
   .hist-modal, .hist-fb { display: none !important; }
 }
+
+/* ===== NUEVAS PESTAÑAS Y GRÁFICAS ===== */
+.hist-tabs {
+  display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid var(--ln);
+}
+.hist-tab {
+  padding: 10px 16px; background: none; border: none; font-weight: bold; font-size: 14px;
+  color: var(--mu); cursor: pointer; border-bottom: 3px solid transparent; transition: 0.2s;
+}
+.hist-tab.active { color: var(--gu); border-bottom-color: var(--gu); }
+.hist-tab:hover { color: var(--tx); }
+
+.hist-tab-content { display: none; animation: fadeIn 0.3s; }
+.hist-tab-content.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* Gráfica de barras CSS */
+.hist-chart-row { display: flex; align-items: flex-end; gap: 20px; height: 150px; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--ln); }
+.hist-chart-year { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; }
+.hist-chart-bars { display: flex; gap: 4px; align-items: flex-end; height: 100%; width: 100%; justify-content: center; }
+.hist-bar { width: 25px; border-radius: 4px 4px 0 0; position: relative; min-height: 2px; transition: height 0.5s ease; }
+.hist-bar.dentro { background: #8A1538; } /* Guinda */
+.hist-bar.fuera { background: #B8860B; } /* Dorado */
+.hist-chart-label { font-size: 12px; font-weight: bold; margin-top: 8px; color: var(--mu); }
+.hist-chart-legend { display: flex; gap: 16px; font-size: 12px; margin-top: 8px; justify-content: center; }
+.hist-chart-legend span { display: flex; align-items: center; gap: 4px; }
+.hist-chart-legend i { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+
+/* Tabla de visitas */
+.hist-visit-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 10px; }
+.hist-visit-table th { background: var(--bg); padding: 8px; text-align: left; font-weight: bold; color: var(--mu); }
+.hist-visit-table td { padding: 8px; border-bottom: 1px solid var(--ln); }
+.hist-badge-d { background: #fce8e6; color: #8A1538; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+.hist-badge-f { background: #fef7e0; color: #B8860B; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
+
+/* Botón de descarga */
+.hist-print-btn {
+  display: block; width: 100%; padding: 12px; background: var(--gu); color: white;
+  text-align: center; border-radius: 8px; font-weight: bold; margin-top: 20px;
+  cursor: pointer; border: none; transition: 0.2s;
+}
+.hist-print-btn:hover { background: #6b1029; }
+
+/* ===== FORMATO PARA IMPRESIÓN / PDF ===== */
+@media print {
+  body * { visibility: hidden; }
+  .hist-modal-card, .hist-modal-card * { visibility: visible; }
+  .hist-modal-card {
+    position: absolute; left: 0; top: 0; width: 100%; max-width: 100%;
+    box-shadow: none; border: none; padding: 0; background: white; color: black;
+  }
+  .hist-modal-close, .hist-tabs, .hist-print-btn, .hist-search-wrap { display: none !important; }
+  .hist-tab-content { display: block !important; margin-bottom: 30px; }
+  .hist-kpi { border: 1px solid #ccc; }
+  .hist-chart-bars { display: none; } /* Ocultamos la gráfica visual en PDF, la tabla es mejor */
+}
