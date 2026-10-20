@@ -356,148 +356,117 @@ $('bl').onclick = () => {
 };
 //
 $('bp').onclick = () => {
+  // 1. Obtener los datos y textos
   const V = E.filter(ok);
   if (!V.length) return;
 
-  // 1. Extraer textos e información
-  const titleTxt = document.querySelector('.w h1').textContent;
-  const subTxt = document.querySelector('.w .sub').textContent;
-  const cntTxt = document.querySelector('#cnt').textContent;
-  const nowHtml = document.querySelector('#nowbox').outerHTML;
+  const subTxt = document.querySelector('.sub').textContent;
+  const enCurso = V.filter(e => st(e)[0] == 'En curso');
   
-  // 2. Preparar el mapa
-  const mapClone = document.querySelector('svg.map').cloneNode(true);
-  mapClone.setAttribute('viewBox', '0 0 700 706');
-  mapClone.style.cssText = 'width: 100%; height: 480px; display: block; margin: 0 auto;';
-
-  // 3. Construir la lista desde cero (Garantiza columnas perfectas y colores)
-  const groups = [1, 2, 3].map(c => {
-    return { c, list: V.filter(e => e.c === c) };
-  }).filter(g => g.list.length > 0);
-
-  // Calcular dónde cortar para que quede parejo en 2 columnas
-  const total = V.length;
-  let mid = total / 2;
-  let c1Count = 0, splitIdx = 1;
-  for(let i = 0; i < groups.length; i++) {
-    c1Count += groups[i].list.length;
-    if(c1Count >= mid) { splitIdx = i + 1; break; }
-  }
-
-  let col1 = '', col2 = '';
-
-  groups.forEach((g, i) => {
-    let html = `<div style="margin-bottom: 15px; break-inside: avoid;">`;
-    html += `<div style="font-weight:800; font-size:11px; margin-bottom:4px; padding-bottom:3px; border-bottom:2px solid #e3dbd0; color:#56212f;">Caravana ${g.c}</div>`;
-    html += `<table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse; font-size:10px;">`;
-    
-    g.list.forEach(e => {
-      const s = st(e);
-      const tagColor = s[0] === 'En curso' ? '#fff' : '#56212f';
-      const tagBg = s[0] === 'En curso' ? '#9F2241' : (s[0] === 'Concluida' ? '#e4ddd3' : '#ddc8a4');
-      
-      html += `
-        <tr style="border-bottom: 1px solid #f6f2ec;">
-          <td style="padding: 4px 0; width: 50%; vertical-align: middle;">
-            ${e.n}${e.s ? ' <span style="color:#bc955b">★</span>' : ''}
-          </td>
-          <td style="padding: 4px 0; text-align: right; width: 30%; color: #6d6266; vertical-align: middle;">
-            ${MN[e.m]} ${e.t}
-          </td>
-          <td style="padding: 4px 0; text-align: right; width: 20%; vertical-align: middle;">
-            <span style="font-size:7px; padding:2px 4px; border-radius:3px; color:${tagColor}; background:${tagBg}; display:inline-block; font-weight:bold;">${s[0]}</span>
-          </td>
-        </tr>
+  // 2. Armar bloque de "En curso"
+  let nowHtml = '';
+  if (enCurso.length > 0) {
+    nowHtml = `<h2 style="font-size:14px; color:#231a1d; margin-bottom:10px;">En curso hoy</h2><div style="display:flex; gap:10px; margin-bottom:20px;">`;
+    enCurso.forEach(e => {
+      nowHtml += `
+        <div style="border:1px solid #e3dbd0; padding:10px; border-left:4px solid #9F2241; flex:1; background:#fbf9f6;">
+          <b style="font-size:12px; display:block; margin-bottom:4px;">${e.n}</b>
+          <span style="font-size:10px; color:#6d6266; display:block;">Caravana ${e.c} · del ${e.d[0]} al ${e.d[e.d.length-1]} de ${MN[e.m].toLowerCase()}</span>
+          <span style="font-size:10px; font-weight:bold; color:#9F2241;">Faltan ${e.d[e.d.length-1] - hoy.d} días</span>
+        </div>
       `;
     });
-    html += `</table></div>`;
+    nowHtml += `</div>`;
+  }
+
+  // 3. Preparar el mapa (obtenemos el SVG tal cual)
+  const mapSvg = document.querySelector('svg.map');
+  const mapHtml = mapSvg ? mapSvg.outerHTML : '';
+
+  // 4. Construir la lista en 2 columnas
+  let col1 = '', col2 = '';
+  let totalC1 = 0;
+  const mid = V.length / 2;
+
+  [1, 2, 3].forEach(c => {
+    const list = V.filter(e => e.c === c);
+    if (!list.length) return;
     
-    if (i < splitIdx) col1 += html;
-    else col2 += html;
+    let html = `<div style="margin-bottom:15px; break-inside:avoid;">`;
+    html += `<h3 style="font-size:12px; font-weight:bold; color:#56212f; border-bottom:2px solid #e3dbd0; padding-bottom:4px; margin-bottom:8px;">Caravana ${c}</h3>`;
+    
+    list.forEach(e => {
+      const s = st(e);
+      const statusColor = s[0] === 'En curso' ? '#fff' : (s[0] === 'Concluida' ? '#6d6266' : '#56212f');
+      const statusBg = s[0] === 'En curso' ? '#9F2241' : (s[0] === 'Concluida' ? '#e4ddd3' : '#ddc8a4');
+      const star = e.s ? ' <span style="color:#bc955b;">★</span>' : '';
+      
+      html += `
+        <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f6f2ec; padding:5px 0; font-size:10px; align-items:center;">
+          <span style="width:50%; font-weight:bold;">${e.n}${star}</span>
+          <span style="width:30%; text-align:right; color:#6d6266;">${MN[e.m]} ${e.t}</span>
+          <span style="width:20%; text-align:right;"><span style="font-size:7px; padding:2px 4px; border-radius:3px; color:${statusColor}; background:${statusBg}; font-weight:bold;">${s[0]}</span></span>
+        </div>
+      `;
+    });
+    html += `</div>`;
+
+    if (totalC1 < mid) {
+      col1 += html;
+      totalC1 += list.length;
+    } else {
+      col2 += html;
+    }
   });
 
-  // 4. Recolectar estilos actuales
-  let styles = "";
-  document.querySelectorAll("style, link[rel='stylesheet']").forEach(el => styles += el.outerHTML);
-
-  // 5. Armar el HTML final
+  // 5. Ensamblar el HTML final
   const html = `
     <html>
       <head>
         <title>Calendario Caravanas</title>
-        ${styles}
         <style>
-          @page { size: portrait; margin: 10mm; }
-          body { 
-            background: white !important; padding: 0; margin: 0; 
-            -webkit-print-color-adjust: exact; print-color-adjust: exact; 
-            font-family: Gotham, Montserrat, system-ui, sans-serif; font-size: 10px; 
+          @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap');
+          body { margin: 0; padding: 20px; font-family: 'Montserrat', sans-serif; background: #fff; color: #231a1d; }
+          .page { width: 100%; max-width: 800px; margin: 0 auto; page-break-after: always; }
+          .page:last-child { page-break-after: auto; }
+          h1 { color: #9F2241; font-size: 20px; margin: 0 0 4px 0; }
+          .sub { color: #6d6266; font-size: 12px; margin: 0 0 20px 0; }
+          .map-container { text-align: center; margin-bottom: 20px; }
+          .map-container svg { max-width: 100%; height: auto; max-height: 550px; }
+          .list-container { display: flex; gap: 20px; }
+          .col { flex: 1; }
+          @media print {
+            body { padding: 0; }
+            .page { max-width: 100%; }
           }
-          
-          h1 { font-size: 20px; color: #9F2241; margin: 0 0 4px 0; }
-          .sub { font-size: 11px; color: #6d6266; margin: 0 0 15px 0; }
-          
-          /* Barra de "En curso hoy" */
-          #nowbox { margin-bottom: 15px !important; padding: 10px !important; border-left: 4px solid #9F2241 !important; background: #fbf9f6 !important; border-radius: 0; border-top: 0; border-right: 0; border-bottom: 0; }
-          #nowbox h2 { font-size: 12px !important; margin: 0 0 8px 0 !important; color: #231a1d !important; }
-          .nw { display: flex !important; gap: 10px !important; justify-content: space-between !important; }
-          .nc { border: 1px solid #e3dbd0 !important; padding: 6px !important; border-left: 3px solid #9F2241 !important; flex: 1 !important; background: #fff; }
-          .nc b { font-size: 10px !important; display: block !important; }
-          .nc span { font-size: 8px !important; display: block !important; }
-          .nc em { font-size: 8px !important; color: #9F2241 !important; font-style: normal !important; font-weight: bold !important; }
-          
-          /* Mapa */
-          svg.map { width: 100% !important; height: 480px !important; display: block !important; margin: 0 auto !important; }
         </style>
       </head>
       <body>
-        <!-- PÁGINA 1 -->
-        <div style="page-break-after: always;">
-          <h1>${titleTxt}</h1>
+        <div class="page">
+          <h1>Caravanas Itinerantes por la Justicia Social</h1>
           <p class="sub">${subTxt}</p>
           ${nowHtml}
-          <div style="margin-top: 10px;">
-            ${mapClone.outerHTML}
+          <div class="map-container">
+            ${mapHtml}
           </div>
         </div>
-        
-        <!-- PÁGINA 2 -->
-        <div style="page-break-before: always; padding-top: 10px;">
-          <h2 style="font-size:14px; color:#56212f; margin:0 0 15px 0;">${cntTxt}</h2>
-          
-          <!-- Usamos una tabla estricta para forzar las 2 columnas -->
-          <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse: collapse;">
-            <tr>
-              <td width="48%" valign="top" style="padding-right: 15px; border-right: 1px dashed #ccc;">${col1}</td>
-              <td width="4%"></td>
-              <td width="48%" valign="top" style="padding-left: 15px;">${col2}</td>
-            </tr>
-          </table>
+        <div class="page">
+          <h1 style="font-size:16px; margin-bottom:15px;">${V.length} municipios</h1>
+          <div class="list-container">
+            <div class="col">${col1}</div>
+            <div class="col">${col2}</div>
+          </div>
         </div>
       </body>
     </html>
   `;
 
-  // 6. Imprimir con iframe invisible
-  const iframe = document.createElement('iframe');
-  iframe.style.position = 'fixed';
-  iframe.style.width = '0';
-  iframe.style.height = '0';
-  iframe.style.border = 'none';
-  document.body.appendChild(iframe);
-  
-  const doc = iframe.contentWindow.document;
-  doc.open();
-  doc.write(html);
-  doc.close();
-  iframe.contentWindow.focus();
-  
-  setTimeout(() => {
-    iframe.contentWindow.print();
-    const cleanup = () => { try { iframe.remove(); } catch(e){} };
-    iframe.contentWindow.onafterprint = cleanup;
-    setTimeout(cleanup, 60000);
-  }, 500);
+  // 6. Abrir en pestaña nueva y imprimir
+  const w = window.open('', '_blank');
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(() => { w.print(); }, 500);
 };
 //
 draw();
